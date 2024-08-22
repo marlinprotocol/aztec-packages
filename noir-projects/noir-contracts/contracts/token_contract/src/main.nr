@@ -16,6 +16,7 @@ contract Token {
     // Libs
     use std::meta::derive;
 
+    use dep::uint_note::uint_note::{UintNote, UintNoteHidingPoint};
     use dep::compressed_string::FieldCompressedString;
 
     use dep::aztec::{
@@ -34,8 +35,7 @@ contract Token {
     use dep::authwit::auth::{assert_current_call_valid_authwit, assert_current_call_valid_authwit_public, compute_authwit_nullifier};
     // docs:end:import_authwit
 
-    use crate::types::{transparent_note::TransparentNote, token_note::TokenNote, balance_set::BalanceSet};
-
+    use crate::types::{transparent_note::TransparentNote, balance_set::BalanceSet};
     // docs:end::imports
 
     // In the first transfer iteration we are computing a lot of additional information (validating inputs, retrieving
@@ -65,7 +65,7 @@ contract Token {
         minters: Map<AztecAddress, PublicMutable<bool, Context>, Context>,
         // docs:end:storage_minters
         // docs:start:storage_balances
-        balances: Map<AztecAddress, BalanceSet<TokenNote, Context>, Context>,
+        balances: Map<AztecAddress, BalanceSet<UintNote, Context>, Context>,
         // docs:end:storage_balances
         total_supply: PublicMutable<U128, Context>,
         // docs:start:storage_pending_shields
@@ -488,12 +488,12 @@ contract Token {
             encode_and_encrypt_note_with_keys_unconstrained(&mut context, user_keys.ovpk_m, user_keys.ivpk_m, user)
         );
         // 4. Now we get the note hiding points.
-        let mut fee_payer_point = TokenNote::hiding_point().new(
+        let mut fee_payer_point = UintNote::hiding_point().new(
             fee_payer_npk_m_hash,
             fee_payer_randomness,
             storage.balances.at(fee_payer).set.storage_slot
         );
-        let mut user_point = TokenNote::hiding_point().new(
+        let mut user_point = UintNote::hiding_point().new(
             user_npk_m_hash,
             user_randomness,
             storage.balances.at(user).set.storage_slot
@@ -517,8 +517,8 @@ contract Token {
     #[public]
     #[internal]
     fn complete_refund(fee_payer_point: Point, user_point: Point, funded_amount: Field) {
-        let mut fee_payer_hiding_point = TokenNote::hiding_point().from_point(fee_payer_point);
-        let mut user_hiding_point = TokenNote::hiding_point().from_point(user_point);
+        let mut fee_payer_hiding_point = UintNote::hiding_point().from_point(fee_payer_point);
+        let mut user_hiding_point = UintNote::hiding_point().from_point(user_point);
         // TODO(#7728): Remove the next line
         let funded_amount = U128::from_integer(funded_amount);
         let tx_fee = U128::from_integer(context.transaction_fee());
@@ -531,28 +531,11 @@ contract Token {
         let fee_payer_note_hash = fee_payer_hiding_point.finalize(tx_fee);
         let user_note_hash = user_hiding_point.finalize(refund_amount);
         // 5. At last we emit the note hashes.
-        context.push_note_hash(fee_payer_note_hash);
         context.push_note_hash(user_note_hash);
         // --> Once the tx is settled user and fee recipient can add the notes to their pixies.
     }
     // docs:end:complete_refund
     /// Internal ///
-    // docs:start:increase_public_balance
-    #[public]
-    #[internal]
-    fn _increase_public_balance(to: AztecAddress, amount: Field) {
-        let new_balance = storage.public_balances.at(to).read().add(U128::from_integer(amount));
-        storage.public_balances.at(to).write(new_balance);
-    }
-    // docs:end:increase_public_balance
-    // docs:start:reduce_total_supply
-    #[public]
-    #[internal]
-    fn _reduce_total_supply(amount: Field) {
-        // Only to be called from burn.
-        let new_supply = storage.total_supply.read().sub(U128::from_integer(amount));
-        storage.total_supply.write(new_supply);
-    }
     // docs:end:reduce_total_supply
     /// Unconstrained ///
     // docs:start:balance_of_private
