@@ -16,7 +16,6 @@ contract Token {
     // Libs
     use std::meta::derive;
 
-    use dep::uint_note::uint_note::{UintNote, UintNoteHidingPoint};
     use dep::compressed_string::FieldCompressedString;
 
     use dep::aztec::{
@@ -31,11 +30,14 @@ contract Token {
         utils::comparison::Comparator, protocol_types::{point::Point, traits::Serialize}
     };
 
+    use dep::uint_note::uint_note::UintNote;
+
     // docs:start:import_authwit
     use dep::authwit::auth::{assert_current_call_valid_authwit, assert_current_call_valid_authwit_public, compute_authwit_nullifier};
     // docs:end:import_authwit
 
     use crate::types::{transparent_note::TransparentNote, balance_set::BalanceSet};
+
     // docs:end::imports
 
     // In the first transfer iteration we are computing a lot of additional information (validating inputs, retrieving
@@ -65,7 +67,7 @@ contract Token {
         minters: Map<AztecAddress, PublicMutable<bool, Context>, Context>,
         // docs:end:storage_minters
         // docs:start:storage_balances
-        balances: Map<AztecAddress, BalanceSet<UintNote, Context>, Context>,
+        balances: Map<AztecAddress, BalanceSet<Context>, Context>,
         // docs:end:storage_balances
         total_supply: PublicMutable<U128, Context>,
         // docs:start:storage_pending_shields
@@ -531,11 +533,28 @@ contract Token {
         let fee_payer_note_hash = fee_payer_hiding_point.finalize(tx_fee);
         let user_note_hash = user_hiding_point.finalize(refund_amount);
         // 5. At last we emit the note hashes.
+        context.push_note_hash(fee_payer_note_hash);
         context.push_note_hash(user_note_hash);
         // --> Once the tx is settled user and fee recipient can add the notes to their pixies.
     }
     // docs:end:complete_refund
     /// Internal ///
+    // docs:start:increase_public_balance
+    #[public]
+    #[internal]
+    fn _increase_public_balance(to: AztecAddress, amount: Field) {
+        let new_balance = storage.public_balances.at(to).read().add(U128::from_integer(amount));
+        storage.public_balances.at(to).write(new_balance);
+    }
+    // docs:end:increase_public_balance
+    // docs:start:reduce_total_supply
+    #[public]
+    #[internal]
+    fn _reduce_total_supply(amount: Field) {
+        // Only to be called from burn.
+        let new_supply = storage.total_supply.read().sub(U128::from_integer(amount));
+        storage.total_supply.write(new_supply);
+    }
     // docs:end:reduce_total_supply
     /// Unconstrained ///
     // docs:start:balance_of_private

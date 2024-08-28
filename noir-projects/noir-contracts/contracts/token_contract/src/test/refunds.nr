@@ -46,21 +46,21 @@ unconstrained fn setup_refund_success() {
     // `executePublicFunction` TXE oracle) but we need to notify TXE of the note (preimage).
     env.add_note(
         &mut UintNote {
-            value: U128::from_integer(funded_amount - 1),
-            npk_m_hash: user_npk_m_hash,
-            randomness: user_randomness,
-            header: NoteHeader::empty()
-        },
+        value: U128::from_integer(funded_amount - 1),
+        npk_m_hash: user_npk_m_hash,
+        randomness: user_randomness,
+        header: NoteHeader::empty()
+    },
         user_balances_slot,
         token_contract_address
     );
     env.add_note(
         &mut UintNote {
-            value: U128::from_integer(1),
-            npk_m_hash: fee_payer_npk_m_hash,
-            randomness: fee_payer_randomness,
-            header: NoteHeader::empty()
-        },
+        value: U128::from_integer(1),
+        npk_m_hash: fee_payer_npk_m_hash,
+        randomness: fee_payer_randomness,
+        header: NoteHeader::empty()
+    },
         fee_payer_balances_slot,
         token_contract_address
     );

@@ -5,13 +5,8 @@ use dep::aztec::{
     keys::getters::get_nsk_app, macros::notes::partial_note
 };
 
-trait OwnedNote {
-    fn new(amount: U128, owner_npk_m_hash: Field) -> Self;
-    fn get_amount(self) -> U128;
-}
-
-// docs:start:TokenNote
-#[partial_note(quote {amount})]
+// docs:start:UintNote
+#[partial_note(quote {value})]
 pub struct UintNote {
     // The value of the note
     value: U128,
@@ -20,7 +15,7 @@ pub struct UintNote {
     // Randomness of the note to hide its contents
     randomness: Field,
 }
-// docs:end:TokenNote
+// docs:end:UintNote
 
 impl NullifiableNote for UintNote {
     // docs:start:nullifier
