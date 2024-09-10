@@ -63,7 +63,7 @@ export async function proverStats(opts: {
   );
 
   // If we only care for raw logs, output them
-  if (rawLogs) {
+  if (rawLogs && !provingTimeout) {
     log(`l1_block_number, l2_block_number, prover_id, tx_hash`);
     for (const event of events) {
       const { l1BlockNumber, l2BlockNumber, proverId, txHash } = event;
@@ -108,7 +108,23 @@ export async function proverStats(opts: {
     l2BlockSubmissions[blockEvent.args.blockNumber.toString()] = blockEvent.blockNumber;
   }
 
-  // Now calculate stats
+  // If we want raw logs, output them
+  if (rawLogs) {
+    log(`l1_block_number, l2_block_number, l2_block_submission_timestamp, proof_timestamp, prover_id, tx_hash`);
+    for (const event of events) {
+      const { l1BlockNumber, l2BlockNumber, proverId, txHash } = event;
+      const uploadedBlockNumber = l2BlockSubmissions[l2BlockNumber.toString()];
+      if (!uploadedBlockNumber) {
+        continue;
+      }
+      const uploadedTimestamp = l1BlockTimestamps[uploadedBlockNumber.toString()];
+      const provenTimestamp = l1BlockTimestamps[l1BlockNumber.toString()];
+      log(`${l1BlockNumber}, ${l2BlockNumber}, ${uploadedTimestamp}, ${provenTimestamp}, ${proverId}, ${txHash}`);
+    }
+    return;
+  }
+
+  // Or calculate stats per prover
   const stats = mapValues(groupBy(events, 'proverId'), (blocks, proverId) =>
     compactArray(
       blocks.map(e => {
