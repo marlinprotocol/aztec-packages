@@ -3,7 +3,6 @@ import {
   EncryptedTxL2Logs,
   PublicDataWrite,
   type PublicInputsAndRecursiveProof,
-  type PublicInputsAndTubeProof,
   type SimulationError,
   type Tx,
   TxEffect,
@@ -214,7 +213,7 @@ export function makePaddingProcessedTx(
  * @returns A valid padding processed tx.
  */
 export function makePaddingProcessedTxFromTubeProof(
-  kernelOutput: PublicInputsAndTubeProof<KernelCircuitPublicInputs>,
+  kernelOutput: PublicInputsAndRecursiveProof<KernelCircuitPublicInputs, typeof TUBE_PROOF_LENGTH>,
 ): PaddingProcessedTxFromTube {
   const hash = new TxHash(Fr.ZERO.toBuffer());
   return {

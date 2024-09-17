@@ -1,10 +1,11 @@
 /* eslint-disable require-await */
 import {
-  type AvmProofAndVerificationKey,
+  ProofAndVerificationKey,
   type PublicInputsAndRecursiveProof,
   type PublicKernelNonTailRequest,
   type PublicKernelTailRequest,
   type ServerCircuitProver,
+  makeProofAndVerificationKey,
   makePublicInputsAndRecursiveProof,
 } from '@aztec/circuit-types';
 import { type CircuitProvingStats, type CircuitWitnessGenerationStats } from '@aztec/circuit-types/stats';
@@ -198,7 +199,7 @@ export class BBNativeRollupProver implements ServerCircuitProver {
   @trackSpan('BBNativeRollupProver.getAvmProof', inputs => ({
     [Attributes.APP_CIRCUIT_NAME]: inputs.functionName,
   }))
-  public async getAvmProof(inputs: AvmCircuitInputs): Promise<AvmProofAndVerificationKey> {
+  public async getAvmProof(inputs: AvmCircuitInputs): Promise<ProofAndVerificationKey<Proof>> {
     const proofAndVk = await this.createAvmProof(inputs);
     await this.verifyAvmProof(proofAndVk.proof, proofAndVk.verificationKey);
     return proofAndVk;
@@ -624,8 +625,8 @@ export class BBNativeRollupProver implements ServerCircuitProver {
     return provingResult;
   }
 
-  private async createAvmProof(input: AvmCircuitInputs): Promise<AvmProofAndVerificationKey> {
-    const operation = async (bbWorkingDirectory: string): Promise<AvmProofAndVerificationKey> => {
+  private async createAvmProof(input: AvmCircuitInputs): Promise<ProofAndVerificationKey<Proof>> {
+    const operation = async (bbWorkingDirectory: string): Promise<ProofAndVerificationKey<Proof>> => {
       const provingResult = await this.generateAvmProofWithBB(input, bbWorkingDirectory);
 
       const rawProof = await fs.readFile(provingResult.proofPath!);
@@ -656,14 +657,14 @@ export class BBNativeRollupProver implements ServerCircuitProver {
         } satisfies CircuitProvingStats,
       );
 
-      return { proof, verificationKey };
+      return makeProofAndVerificationKey(proof, verificationKey);
     };
     return await this.runInDirectory(operation);
   }
 
   public async getTubeProof(
     input: TubeInputs,
-  ): Promise<{ tubeVK: VerificationKeyData; tubeProof: RecursiveProof<typeof TUBE_PROOF_LENGTH> }> {
+  ): Promise<ProofAndVerificationKey<RecursiveProof<typeof TUBE_PROOF_LENGTH>>> {
     // this probably is gonna need to call client ivc
     const operation = async (bbWorkingDirectory: string) => {
       logger.debug(`createTubeProof: ${bbWorkingDirectory}`);
@@ -687,7 +688,7 @@ export class BBNativeRollupProver implements ServerCircuitProver {
         } fields`,
       );
 
-      return { tubeVK, tubeProof };
+      return makeProofAndVerificationKey(tubeProof, tubeVK);
     };
     return await this.runInDirectory(operation);
   }

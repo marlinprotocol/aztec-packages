@@ -1,5 +1,5 @@
 import {
-  type AvmProofAndVerificationKey,
+  type ProofAndVerificationKey,
   type ProvingJob,
   type ProvingJobSource,
   type ProvingRequest,
@@ -22,6 +22,7 @@ import type {
   MergeRollupInputs,
   NESTED_RECURSIVE_PROOF_LENGTH,
   PrivateKernelEmptyInputData,
+  Proof,
   PublicKernelCircuitPublicInputs,
   RECURSIVE_PROOF_LENGTH,
   RecursiveProof,
@@ -30,7 +31,6 @@ import type {
   RootRollupInputs,
   RootRollupPublicInputs,
   TubeInputs,
-  VerificationKeyData,
 } from '@aztec/circuits.js';
 import { randomBytes } from '@aztec/foundation/crypto';
 import { AbortError, TimeoutError } from '@aztec/foundation/error';
@@ -277,7 +277,7 @@ export class MemoryProvingQueue implements ServerCircuitProver, ProvingJobSource
     inputs: TubeInputs,
     signal?: AbortSignal,
     epochNumber?: number,
-  ): Promise<{ tubeVK: VerificationKeyData; tubeProof: RecursiveProof<typeof RECURSIVE_PROOF_LENGTH> }> {
+  ): Promise<ProofAndVerificationKey<RecursiveProof<typeof RECURSIVE_PROOF_LENGTH>>> {
     return this.enqueue({ type: ProvingRequestType.TUBE_PROOF, inputs }, signal, epochNumber);
   }
 
@@ -412,7 +412,7 @@ export class MemoryProvingQueue implements ServerCircuitProver, ProvingJobSource
     inputs: AvmCircuitInputs,
     signal?: AbortSignal,
     epochNumber?: number,
-  ): Promise<AvmProofAndVerificationKey> {
+  ): Promise<ProofAndVerificationKey<Proof>> {
     return this.enqueue({ type: ProvingRequestType.PUBLIC_VM, inputs }, signal, epochNumber);
   }
 
