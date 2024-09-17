@@ -34,21 +34,16 @@ export class InMemoryBrokerBackend implements BrokerBackend {
     return Promise.resolve();
   }
 
-  getProofRequest<T extends ProofType>(id: ProofRequestId): Promise<ProofRequest<T> | undefined> {
-    return Promise.resolve(this.items.get(id) as ProofRequest<T>);
+  getProofRequest<T extends ProofType>(id: ProofRequestId): ProofRequest<T> | undefined {
+    return this.items.get(id) as ProofRequest<T>;
   }
 
   getProofResult<T extends ProofType>(
     id: ProofRequestId,
     proofType: T,
-  ): Promise<{ value: ProofOutputs[T] } | { error: Error } | undefined> {
+  ): { value: ProofOutputs[T] } | { error: Error } | undefined {
     assert.equal(this.items.get(id)?.proofType, proofType, 'Proof type mismatch');
-    const result = this.results.get(id);
-    if (result === undefined) {
-      return Promise.resolve(undefined);
-    } else {
-      return Promise.resolve(result as any);
-    }
+    return this.results.get(id) as any;
   }
 
   removeProofRequest(id: ProofRequestId): Promise<void> {

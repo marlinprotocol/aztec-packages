@@ -24,6 +24,13 @@ export abstract class BaseMemoryQueue<T> {
     return this.items.length;
   }
 
+  public getInstant(): T | null {
+    if (this.items.length) {
+      return this.items.get()!;
+    }
+    return null;
+  }
+
   /**
    * Returns next item within the queue, or blocks until an item has been put into the queue.
    *

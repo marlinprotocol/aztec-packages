@@ -27,7 +27,7 @@ export interface BrokerBackend {
    * Gets a proof request by its ID. Returns undefined if the proof request does not exist
    * @param id - The ID of the proof request to retrieve
    */
-  getProofRequest<T extends ProofType>(id: ProofRequestId, proofType: T): Promise<ProofRequest<T> | undefined>;
+  getProofRequest<T extends ProofType>(id: ProofRequestId, proofType: T): ProofRequest<T> | undefined;
 
   /**
    * Returns the saved result of a proof request. Returns undefined if the result does not exist.
@@ -37,7 +37,7 @@ export interface BrokerBackend {
   getProofResult<T extends ProofType>(
     id: ProofRequestId,
     proofType: T,
-  ): Promise<{ value: ProofOutputs[T] } | { error: Error } | undefined>;
+  ): { value: ProofOutputs[T] } | { error: Error } | undefined;
 
   /**
    * Removes a proof request from the backend
