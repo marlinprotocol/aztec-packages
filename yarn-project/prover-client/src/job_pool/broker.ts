@@ -26,6 +26,7 @@ type InProgressMetadata = {
 type ProofRequestBrokerConfig = {
   timeoutIntervalMs?: number;
   proofRequestTimeoutMs?: number;
+  maxRetries?: number;
 };
 
 /**
@@ -39,17 +40,21 @@ export class ProofRequestBroker implements ProofRequestProducer, ProofRequestCon
   }, {} as QueueByProofType);
 
   private inProgress = new Map<ProofRequestId, InProgressMetadata>();
+  private retries = new Map<ProofRequestId, number>();
+
   private timeoutPromise: RunningPromise;
-  private timeSource = performance.now;
+  private timeSource = Date.now;
   private proofRequestTimeoutMs: number;
+  private maxRetries: number;
 
   public constructor(
     private backend: BrokerBackend,
-    { proofRequestTimeoutMs = 30_000, timeoutIntervalMs = 10_000 }: ProofRequestBrokerConfig = {},
+    { proofRequestTimeoutMs = 30_000, timeoutIntervalMs = 10_000, maxRetries = 3 }: ProofRequestBrokerConfig = {},
     private logger = createDebugLogger('aztec:prover-client:proof-request-broker'),
   ) {
     this.timeoutPromise = new RunningPromise(this.timeoutCheck, timeoutIntervalMs);
     this.proofRequestTimeoutMs = proofRequestTimeoutMs;
+    this.maxRetries = maxRetries;
   }
 
   public start(): void {
@@ -71,6 +76,8 @@ export class ProofRequestBroker implements ProofRequestProducer, ProofRequestCon
 
   public cancelProof(id: ProofRequestId): Promise<void> {
     this.logger.info(`Cancelling proof request id=${id}`);
+    this.retries.delete(id);
+    this.inProgress.delete(id);
     return this.backend.removeProofRequest(id);
   }
 
@@ -94,7 +101,7 @@ export class ProofRequestBroker implements ProofRequestProducer, ProofRequestCon
   // ================== ProofRequestConsumer ==================
 
   async getProofRequest<T extends ProofType[]>(
-    filter: ProofRequestFilter<T>,
+    filter: ProofRequestFilter<T> = {},
   ): Promise<ProofRequest<T[number]> | undefined> {
     const proofTypes = filter.allowList ?? Object.values(ProofType);
     for (const proofType of proofTypes) {
@@ -115,8 +122,30 @@ export class ProofRequestBroker implements ProofRequestProducer, ProofRequestCon
     return undefined;
   }
 
-  reportError<T extends ProofType>(id: ProofRequestId, proofType: T, err: Error): Promise<void> {
-    return this.backend.saveProofRequestError(id, proofType, err);
+  async reportError<T extends ProofType>(id: ProofRequestId, proofType: T, err: Error, retry = false): Promise<void> {
+    const info = this.inProgress.get(id);
+    const item = this.backend.getProofRequest(id, proofType);
+    const retries = this.retries.get(id) ?? 0;
+
+    if (!item) {
+      this.logger.warn(`Proof request id=${id} type=${proofType} not found`);
+      return;
+    }
+
+    if (!info) {
+      this.logger.warn(`Proof request id=${id} type=${proofType} is known but not known to be in-progress`);
+    } else {
+      this.inProgress.delete(id);
+    }
+
+    if (retry && retries + 1 < this.maxRetries) {
+      this.logger.info(`Retrying proof request id=${id} type=${proofType} retry=${retries + 1}`);
+      this.retries.set(id, retries + 1);
+      return this.enqueueProof(item);
+    } else {
+      this.logger.verbose(`Marking proof request id=${id} type=${proofType} totalAttempts=${retries + 1} as failed`);
+      return this.backend.saveProofRequestError(id, proofType, err);
+    }
   }
 
   reportProgress<T extends ProofType[]>(
@@ -140,7 +169,10 @@ export class ProofRequestBroker implements ProofRequestProducer, ProofRequestCon
       }
 
       const elapsedSinceLastUpdate = this.timeSource() - metadata.lastUpdatedAt;
-      if (elapsedSinceLastUpdate > this.proofRequestTimeoutMs) {
+      this.logger.debug(
+        `Proof request id=${id} type=${metadata.type} elapsed=${elapsedSinceLastUpdate} timeout=${this.proofRequestTimeoutMs}`,
+      );
+      if (elapsedSinceLastUpdate >= this.proofRequestTimeoutMs) {
         this.logger.warn(`Proof request id=${id} type=${metadata.type} timed out. Adding it back to the queue.`);
         this.inProgress.delete(id);
         await this.enqueueProof(item);

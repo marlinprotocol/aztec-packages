@@ -1,20 +1,28 @@
 import { RECURSIVE_PROOF_LENGTH } from '@aztec/circuits.js';
 import { makeBaseParityInputs, makeBaseRollupInputs, makeRootParityInput } from '@aztec/circuits.js/testing';
-import { sleep } from '@aztec/foundation/sleep';
+
+import { jest } from '@jest/globals';
 
 import { ProofRequestBroker } from './broker.js';
 import { InMemoryBrokerBackend } from './broker_backend/in_memory.js';
 import { type ProofRequest, ProofType, makeProofRequestId } from './proof_request.js';
 
+beforeAll(() => {
+  jest.useFakeTimers();
+});
+
 describe('ProofRequestBroker', () => {
   let broker: ProofRequestBroker;
   let timeoutMs: number;
+  let maxRetries: number;
 
   beforeEach(() => {
     timeoutMs = 300;
+    maxRetries = 2;
     broker = new ProofRequestBroker(new InMemoryBrokerBackend(), {
       proofRequestTimeoutMs: timeoutMs,
-      timeoutIntervalMs: timeoutMs / 2,
+      timeoutIntervalMs: timeoutMs / 3,
+      maxRetries,
     });
 
     broker.start();
@@ -254,8 +262,7 @@ describe('ProofRequestBroker', () => {
         status: 'in-queue',
       });
 
-      const req = await broker.getProofRequest({ allowList: [ProofType.BaseParityProof] });
-      expect(req).toEqual(proofRequest);
+      await expect(broker.getProofRequest()).resolves.toEqual(proofRequest);
 
       await expect(broker.getProofStatus(proofRequest.id, proofRequest.proofType)).resolves.toEqual({
         status: 'in-progress',
@@ -276,17 +283,105 @@ describe('ProofRequestBroker', () => {
         status: 'in-queue',
       });
 
-      const req = await broker.getProofRequest({ allowList: [ProofType.BaseParityProof] });
-      expect(req).toEqual(proofRequest);
+      await expect(broker.getProofRequest()).resolves.toEqual(proofRequest);
+      await expect(broker.getProofStatus(proofRequest.id, proofRequest.proofType)).resolves.toEqual({
+        status: 'in-progress',
+      });
+
+      await jest.advanceTimersByTimeAsync(timeoutMs);
+
+      await expect(broker.getProofStatus(proofRequest.id, proofRequest.proofType)).resolves.toEqual({
+        status: 'in-queue',
+      });
+    });
+  });
+
+  describe('Proof errors and retries', () => {
+    it('retries proof requests', async () => {
+      const proofRequest: ProofRequest<ProofType.BaseParityProof> = {
+        id: makeProofRequestId(),
+        blockNumber: 1,
+        proofType: ProofType.BaseParityProof,
+        inputs: makeBaseParityInputs(),
+      };
+
+      await broker.enqueueProof(proofRequest);
+
+      await expect(broker.getProofStatus(proofRequest.id, proofRequest.proofType)).resolves.toEqual({
+        status: 'in-queue',
+      });
+
+      await expect(broker.getProofRequest()).resolves.toEqual(proofRequest);
 
       await expect(broker.getProofStatus(proofRequest.id, proofRequest.proofType)).resolves.toEqual({
         status: 'in-progress',
       });
 
-      await sleep(timeoutMs + 10);
+      await broker.reportError(proofRequest.id, proofRequest.proofType, new Error('test error'), true);
 
       await expect(broker.getProofStatus(proofRequest.id, proofRequest.proofType)).resolves.toEqual({
         status: 'in-queue',
+      });
+    });
+
+    it('retries up to a maximum number of times', async () => {
+      const proofRequest: ProofRequest<ProofType.BaseParityProof> = {
+        id: makeProofRequestId(),
+        blockNumber: 1,
+        proofType: ProofType.BaseParityProof,
+        inputs: makeBaseParityInputs(),
+      };
+
+      await broker.enqueueProof(proofRequest);
+
+      for (let i = 0; i < maxRetries; i++) {
+        await expect(broker.getProofStatus(proofRequest.id, proofRequest.proofType)).resolves.toEqual({
+          status: 'in-queue',
+        });
+        await expect(broker.getProofRequest()).resolves.toEqual(proofRequest);
+        await expect(broker.getProofStatus(proofRequest.id, proofRequest.proofType)).resolves.toEqual({
+          status: 'in-progress',
+        });
+        await broker.reportError(proofRequest.id, proofRequest.proofType, new Error('test error'), true);
+      }
+      await expect(broker.getProofStatus(proofRequest.id, proofRequest.proofType)).resolves.toEqual({
+        status: 'rejected',
+        error: new Error('test error'),
+      });
+    });
+
+    it('passing retry=false does not retry', async () => {
+      const proofRequest: ProofRequest<ProofType.BaseParityProof> = {
+        id: makeProofRequestId(),
+        blockNumber: 1,
+        proofType: ProofType.BaseParityProof,
+        inputs: makeBaseParityInputs(),
+      };
+
+      await broker.enqueueProof(proofRequest);
+
+      await expect(broker.getProofRequest()).resolves.toEqual(proofRequest);
+      await broker.reportError(proofRequest.id, proofRequest.proofType, new Error('test error'), false);
+      await expect(broker.getProofStatus(proofRequest.id, proofRequest.proofType)).resolves.toEqual({
+        status: 'rejected',
+        error: new Error('test error'),
+      });
+    });
+
+    it('can report error even if job not started', async () => {
+      const proofRequest: ProofRequest<ProofType.BaseParityProof> = {
+        id: makeProofRequestId(),
+        blockNumber: 1,
+        proofType: ProofType.BaseParityProof,
+        inputs: makeBaseParityInputs(),
+      };
+
+      await broker.enqueueProof(proofRequest);
+      await broker.reportError(proofRequest.id, proofRequest.proofType, new Error('test error'));
+
+      await expect(broker.getProofStatus(proofRequest.id, proofRequest.proofType)).resolves.toEqual({
+        status: 'rejected',
+        error: new Error('test error'),
       });
     });
   });

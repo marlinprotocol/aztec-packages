@@ -11,7 +11,7 @@ export interface ProofRequestFilter<T extends ProofType[]> {
 }
 
 export interface ProofRequestConsumer {
-  getProofRequest<T extends ProofType[]>(filter: ProofRequestFilter<T>): Promise<ProofRequest<T[number]> | undefined>;
+  getProofRequest<T extends ProofType[]>(filter?: ProofRequestFilter<T>): Promise<ProofRequest<T[number]> | undefined>;
   reportResult<T extends ProofType>(id: ProofRequestId, proofType: T, result: ProofOutputs[T]): Promise<void>;
   reportError<T extends ProofType>(id: ProofRequestId, proofType: T, err: Error): Promise<void>;
   reportProgress<T extends ProofType[]>(
