@@ -104,6 +104,18 @@ export interface ProofRequest<T extends ProofType> {
   readonly inputs: ProofInputs[T];
 }
 
+export type ProofResult<T extends ProofType> =
+  | {
+      readonly id: ProofRequestId;
+      readonly proofType: T;
+      readonly value: ProofOutputs[T];
+    }
+  | {
+      readonly id: ProofRequestId;
+      readonly proofType: T;
+      readonly error: Error;
+    };
+
 export type ProofRequestStatus<T extends ProofType> =
   | {
       status: 'in-queue';

@@ -1,4 +1,4 @@
-import type { ProofOutputs, ProofRequest, ProofRequestId, ProofType } from '../proof_request.js';
+import type { ProofOutputs, ProofRequest, ProofRequestId, ProofResult, ProofType } from '../proof_request.js';
 
 export interface BrokerBackend {
   /**
@@ -34,10 +34,7 @@ export interface BrokerBackend {
    * @param id - The ID of the proof request to get the result for
    * @param proofType - The type of proof that was requested
    */
-  getProofResult<T extends ProofType>(
-    id: ProofRequestId,
-    proofType: T,
-  ): { value: ProofOutputs[T] } | { error: Error } | undefined;
+  getProofResult<T extends ProofType>(id: ProofRequestId, proofType: T): ProofResult<T> | undefined;
 
   /**
    * Removes a proof request from the backend
