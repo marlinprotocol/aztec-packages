@@ -52,4 +52,8 @@ export class InMemoryBrokerBackend implements BrokerBackend {
     this.items.delete(id);
     return Promise.resolve();
   }
+
+  allProofRequests(): Iterable<ProofRequest<ProofType>> {
+    return this.items.values();
+  }
 }

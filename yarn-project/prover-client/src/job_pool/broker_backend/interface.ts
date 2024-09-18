@@ -41,4 +41,6 @@ export interface BrokerBackend {
    * @param id - The ID of the proof request to remove
    */
   removeProofRequest(id: ProofRequestId): Promise<void>;
+
+  allProofRequests(): Iterable<ProofRequest<ProofType>>;
 }

@@ -1,10 +1,17 @@
-import { RECURSIVE_PROOF_LENGTH } from '@aztec/circuits.js';
-import { makeBaseParityInputs, makeBaseRollupInputs, makeRootParityInput } from '@aztec/circuits.js/testing';
+import { makePublicInputsAndRecursiveProof } from '@aztec/circuit-types';
+import { RECURSIVE_PROOF_LENGTH, VerificationKeyData, makeRecursiveProof } from '@aztec/circuits.js';
+import {
+  makeBaseOrMergeRollupPublicInputs,
+  makeBaseParityInputs,
+  makeBaseRollupInputs,
+  makeRootParityInput,
+} from '@aztec/circuits.js/testing';
 
 import { jest } from '@jest/globals';
 
 import { ProofRequestBroker } from './broker.js';
 import { InMemoryBrokerBackend } from './broker_backend/in_memory.js';
+import { type BrokerBackend } from './broker_backend/interface.js';
 import { type ProofRequest, ProofType, makeProofRequestId } from './proof_request.js';
 
 beforeAll(() => {
@@ -16,7 +23,7 @@ describe('ProofRequestBroker', () => {
   let timeoutMs: number;
   let maxRetries: number;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     timeoutMs = 300;
     maxRetries = 2;
     broker = new ProofRequestBroker(new InMemoryBrokerBackend(), {
@@ -25,7 +32,7 @@ describe('ProofRequestBroker', () => {
       maxRetries,
     });
 
-    broker.start();
+    await broker.start();
   });
 
   afterEach(async () => {
@@ -382,6 +389,108 @@ describe('ProofRequestBroker', () => {
       await expect(broker.getProofStatus(proofRequest.id, proofRequest.proofType)).resolves.toEqual({
         status: 'rejected',
         error: new Error('test error'),
+      });
+    });
+  });
+
+  describe('State restore', () => {
+    let backend: BrokerBackend;
+    let broker: ProofRequestBroker;
+
+    beforeEach(() => {
+      backend = new InMemoryBrokerBackend();
+      broker = new ProofRequestBroker(backend, {
+        proofRequestTimeoutMs: timeoutMs,
+        timeoutIntervalMs: timeoutMs / 3,
+        maxRetries,
+      });
+    });
+
+    afterEach(async () => {
+      await broker.stop();
+    });
+
+    it('re-enqueues proof requests on start', async () => {
+      const id1 = makeProofRequestId();
+
+      await backend.saveProofRequest({
+        id: id1,
+        blockNumber: 1,
+        proofType: ProofType.BaseParityProof,
+        inputs: makeBaseParityInputs(),
+      });
+
+      const id2 = makeProofRequestId();
+      await backend.saveProofRequest({
+        id: id2,
+        blockNumber: 2,
+        proofType: ProofType.BaseRollupProof,
+        inputs: makeBaseRollupInputs(),
+      });
+
+      await broker.start();
+
+      await expect(broker.getProofStatus(id1, ProofType.BaseParityProof)).resolves.toEqual({ status: 'in-queue' });
+      await expect(broker.getProofStatus(id2, ProofType.BaseRollupProof)).resolves.toEqual({ status: 'in-queue' });
+
+      await expect(broker.getProofRequest({ allowList: [ProofType.BaseParityProof] })).resolves.toEqual({
+        id: id1,
+        blockNumber: 1,
+        proofType: ProofType.BaseParityProof,
+        inputs: expect.any(Object),
+      });
+
+      await expect(broker.getProofRequest()).resolves.toEqual({
+        id: id2,
+        blockNumber: 2,
+        proofType: ProofType.BaseRollupProof,
+        inputs: expect.any(Object),
+      });
+
+      await expect(broker.getProofStatus(id1, ProofType.BaseParityProof)).resolves.toEqual({ status: 'in-progress' });
+      await expect(broker.getProofStatus(id2, ProofType.BaseRollupProof)).resolves.toEqual({ status: 'in-progress' });
+    });
+
+    it('restores proof results on start', async () => {
+      const id1 = makeProofRequestId();
+
+      await backend.saveProofRequest({
+        id: id1,
+        blockNumber: 1,
+        proofType: ProofType.BaseParityProof,
+        inputs: makeBaseParityInputs(),
+      });
+
+      const id2 = makeProofRequestId();
+      await backend.saveProofRequest({
+        id: id2,
+        blockNumber: 2,
+        proofType: ProofType.BaseRollupProof,
+        inputs: makeBaseRollupInputs(),
+      });
+
+      await backend.saveProofRequestResult(id1, ProofType.BaseParityProof, makeRootParityInput(RECURSIVE_PROOF_LENGTH));
+
+      await backend.saveProofRequestResult(
+        id2,
+        ProofType.BaseRollupProof,
+        makePublicInputsAndRecursiveProof(
+          makeBaseOrMergeRollupPublicInputs(),
+          makeRecursiveProof(RECURSIVE_PROOF_LENGTH),
+          VerificationKeyData.makeFake(),
+        ),
+      );
+
+      await broker.start();
+
+      await expect(broker.getProofStatus(id1, ProofType.BaseParityProof)).resolves.toEqual({
+        status: 'resolved',
+        value: expect.any(Object),
+      });
+
+      await expect(broker.getProofStatus(id2, ProofType.BaseRollupProof)).resolves.toEqual({
+        status: 'resolved',
+        value: expect.any(Object),
       });
     });
   });

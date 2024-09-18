@@ -57,7 +57,12 @@ export class ProofRequestBroker implements ProofRequestProducer, ProofRequestCon
     this.maxRetries = maxRetries;
   }
 
-  public start(): void {
+  public async start(): Promise<void> {
+    for (const item of this.backend.allProofRequests()) {
+      this.logger.info(`Re-enqueueing proof request id=${item.id} type=${item.proofType}`);
+      this.enqueueProofInternal(item);
+    }
+
     this.timeoutPromise.start();
   }
 
@@ -67,11 +72,7 @@ export class ProofRequestBroker implements ProofRequestProducer, ProofRequestCon
 
   public async enqueueProof<T extends ProofType>(request: ProofRequest<T>): Promise<void> {
     await this.backend.saveProofRequest(request);
-    this.queues[request.proofType].put(request);
-
-    this.logger.debug(`Enqueued new proof request id=${request.id} type=${request.proofType}`);
-
-    return Promise.resolve();
+    return this.enqueueProofInternal(request);
   }
 
   public cancelProof(id: ProofRequestId): Promise<void> {
@@ -179,6 +180,11 @@ export class ProofRequestBroker implements ProofRequestProducer, ProofRequestCon
       }
     }
   };
+
+  private enqueueProofInternal<T extends ProofType>(request: ProofRequest<T>): void {
+    this.queues[request.proofType].put(request);
+    this.logger.debug(`Enqueued new proof request id=${request.id} type=${request.proofType}`);
+  }
 }
 
 type QueueByProofType = {
