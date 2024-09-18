@@ -34,8 +34,13 @@ export class InMemoryBrokerBackend implements BrokerBackend {
     return Promise.resolve();
   }
 
-  getProofRequest<T extends ProofType>(id: ProofRequestId): ProofRequest<T> | undefined {
-    return this.items.get(id) as ProofRequest<T>;
+  getProofRequest<T extends ProofType>(id: ProofRequestId, proofType: ProofType): ProofRequest<T> | undefined {
+    const item = this.items.get(id);
+    if (item) {
+      assert.equal(item.proofType, proofType, `Proof type mismatch id=${id}`);
+      return item as ProofRequest<T>;
+    }
+    return undefined;
   }
 
   getProofResult<T extends ProofType>(

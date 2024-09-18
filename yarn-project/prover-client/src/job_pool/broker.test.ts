@@ -69,7 +69,7 @@ describe('ProofRequestBroker', () => {
       };
 
       await broker.enqueueProof(proofRequest);
-      await expect(broker.getProofStatus(proofRequest.id, ProofType.BaseRollupProof)).rejects.toThrow(
+      await expect(broker.getProofStatus(proofRequest.id, ProofType.BlockRootRollupProof)).rejects.toThrow(
         'Proof type mismatch',
       );
     });
@@ -283,7 +283,7 @@ describe('ProofRequestBroker', () => {
         status: 'in-progress',
       });
 
-      await sleep(timeoutMs + 1);
+      await sleep(timeoutMs + 10);
 
       await expect(broker.getProofStatus(proofRequest.id, proofRequest.proofType)).resolves.toEqual({
         status: 'in-queue',

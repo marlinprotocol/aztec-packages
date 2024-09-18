@@ -1,4 +1,7 @@
-import { TimeoutError } from '@aztec/foundation/error';
+// disable this lint rule: if a function is meant to return a Promise, but it doesn't contain any async code
+// then any errors thrown will be thrown immediately instead of returning a rejected Promise
+
+/* eslint-disable require-await */
 import { createDebugLogger } from '@aztec/foundation/log';
 import { RunningPromise } from '@aztec/foundation/promise';
 import { PriorityMemoryQueue } from '@aztec/foundation/queue';
@@ -72,13 +75,13 @@ export class ProofRequestBroker implements ProofRequestProducer, ProofRequestCon
   }
 
   public async getProofStatus<T extends ProofType>(id: ProofRequestId, proofType: T): Promise<ProofRequestStatus<T>> {
-    const item = await this.backend.getProofRequest(id, proofType);
+    const item = this.backend.getProofRequest(id, proofType);
     if (!item) {
       this.logger.warn(`Proof request id=${id} type=${proofType} not found`);
       return Promise.resolve({ status: 'not-found' });
     }
 
-    const result = await this.backend.getProofResult(id, proofType);
+    const result = this.backend.getProofResult(id, proofType);
     if (!result) {
       return Promise.resolve({ status: this.inProgress.has(id) ? 'in-progress' : 'in-queue' });
     } else if ('value' in result) {
@@ -90,7 +93,9 @@ export class ProofRequestBroker implements ProofRequestProducer, ProofRequestCon
 
   // ================== ProofRequestConsumer ==================
 
-  getProofRequest<T extends ProofType[]>(filter: ProofRequestFilter<T>): Promise<ProofRequest<T[number]> | undefined> {
+  async getProofRequest<T extends ProofType[]>(
+    filter: ProofRequestFilter<T>,
+  ): Promise<ProofRequest<T[number]> | undefined> {
     const proofTypes = filter.allowList ?? Object.values(ProofType);
     for (const proofType of proofTypes) {
       const queue = this.queues[proofType];
@@ -103,11 +108,11 @@ export class ProofRequestBroker implements ProofRequestProducer, ProofRequestCon
           lastUpdatedAt: this.timeSource(),
         });
 
-        return Promise.resolve(item);
+        return item;
       }
     }
 
-    return Promise.resolve(undefined);
+    return undefined;
   }
 
   reportError<T extends ProofType>(id: ProofRequestId, proofType: T, err: Error): Promise<void> {
