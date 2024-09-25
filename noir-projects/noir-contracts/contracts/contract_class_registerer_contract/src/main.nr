@@ -54,6 +54,9 @@ contract ContractClassRegisterer {
             if (i < bytecode_length_in_fields) {
                 // We skip the first element when hashing since it is the length
                 computed_public_bytecode_commitment = std::hash::poseidon2::Poseidon2::hash([packed_public_bytecode[i + 1],computed_public_bytecode_commitment],2);
+            } else {
+                // Any bytes after the bytecode length must be 0
+                assert_eq(packed_public_bytecode[i + 1], 0);
             }
         }
         assert_eq(computed_public_bytecode_commitment, public_bytecode_commitment);

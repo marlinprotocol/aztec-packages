@@ -36,12 +36,12 @@ class AvmExecutionTests : public ::testing::Test {
                                                     ExecutionHints execution_hints,
                                                     uint32_t side_effect_counter,
                                                     std::vector<FF> calldata,
-                                                    std::vector<uint8_t> contract_bytecode) {
+                                                    const std::vector<std::vector<uint8_t>>& all_contracts_bytecode) {
             return AvmTraceBuilder(std::move(public_inputs),
                                    std::move(execution_hints),
                                    side_effect_counter,
                                    std::move(calldata),
-                                   contract_bytecode)
+                                   all_contracts_bytecode)
                 .set_full_precomputed_tables(false)
                 .set_range_check_required(false);
         });
