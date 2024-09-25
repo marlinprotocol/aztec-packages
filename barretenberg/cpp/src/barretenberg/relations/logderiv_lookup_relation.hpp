@@ -18,8 +18,8 @@ template <typename FF_> class LogDerivLookupRelationImpl {
     static constexpr size_t LENGTH = 5; // both subrelations are degree 4
 
     static constexpr std::array<size_t, 2> SUBRELATION_PARTIAL_LENGTHS{
-        LENGTH, // inverse construction sub-relation
-        LENGTH  // log derivative lookup argument sub-relation
+        LENGTH + 4, // inverse construction sub-relation
+        LENGTH + 3  // log derivative lookup argument sub-relation
     };
     /**
      * @brief For ZK-Flavors: The degrees of subrelations considered as polynomials only in witness polynomials,

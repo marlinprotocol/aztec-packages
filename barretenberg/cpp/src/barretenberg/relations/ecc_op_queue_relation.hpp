@@ -8,14 +8,14 @@ template <typename FF_> class EccOpQueueRelationImpl {
     using FF = FF_;
 
     static constexpr std::array<size_t, 8> SUBRELATION_PARTIAL_LENGTHS{
-        3, // wire - op-queue-wire consistency sub-relation 1
-        3, // wire - op-queue-wire consistency sub-relation 2
-        3, // wire - op-queue-wire consistency sub-relation 3
-        3, // wire - op-queue-wire consistency sub-relation 4
-        3, // op-queue-wire vanishes sub-relation 1
-        3, // op-queue-wire vanishes sub-relation 2
-        3, // op-queue-wire vanishes sub-relation 3
-        3  // op-queue-wire vanishes sub-relation 4
+        7, // wire - op-queue-wire consistency sub-relation 1
+        7, // wire - op-queue-wire consistency sub-relation 2
+        7, // wire - op-queue-wire consistency sub-relation 3
+        7, // wire - op-queue-wire consistency sub-relation 4
+        7, // op-queue-wire vanishes sub-relation 1
+        7, // op-queue-wire vanishes sub-relation 2
+        7, // op-queue-wire vanishes sub-relation 3
+        7  // op-queue-wire vanishes sub-relation 4
     };
     /**
      * @brief For ZK-Flavors: The degrees of subrelations considered as polynomials only in witness polynomials,

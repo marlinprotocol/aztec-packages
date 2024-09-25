@@ -10,8 +10,8 @@ template <typename FF_> class EllipticRelationImpl {
     using FF = FF_;
 
     static constexpr std::array<size_t, 2> SUBRELATION_PARTIAL_LENGTHS{
-        6, // x-coordinate sub-relation
-        6, // y-coordinate sub-relation
+        7, // x-coordinate sub-relation
+        7, // y-coordinate sub-relation
     };
     /**
      * @brief For ZK-Flavors: The degrees of subrelations considered as polynomials only in witness polynomials,

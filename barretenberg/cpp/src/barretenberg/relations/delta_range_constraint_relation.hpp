@@ -8,10 +8,10 @@ template <typename FF_> class DeltaRangeConstraintRelationImpl {
     using FF = FF_;
 
     static constexpr std::array<size_t, 4> SUBRELATION_PARTIAL_LENGTHS{
-        6, // range constrain sub-relation 1
-        6, // range constrain sub-relation 2
-        6, // range constrain sub-relation 3
-        6  // range constrain sub-relation 4
+        7, // range constrain sub-relation 1
+        7, // range constrain sub-relation 2
+        7, // range constrain sub-relation 3
+        7  // range constrain sub-relation 4
     };
     /**
      * @brief For ZK-Flavors: The degrees of subrelations considered as polynomials only in witness polynomials,
