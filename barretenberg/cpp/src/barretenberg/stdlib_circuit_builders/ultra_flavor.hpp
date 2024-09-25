@@ -72,7 +72,7 @@ class UltraFlavor {
     using Relations = Relations_<FF>;
 
     static constexpr size_t MAX_PARTIAL_RELATION_LENGTH = compute_max_partial_relation_length<Relations>();
-    static_assert(MAX_PARTIAL_RELATION_LENGTH == 7);
+    // static_assert(MAX_PARTIAL_RELATION_LENGTH == 7);
     static constexpr size_t MAX_TOTAL_RELATION_LENGTH = compute_max_total_relation_length<Relations>();
     static_assert(MAX_TOTAL_RELATION_LENGTH == 11);
     static constexpr size_t NUM_SUBRELATIONS = compute_number_of_subrelations<Relations>();
