@@ -54,8 +54,10 @@ export class KeyStore {
       publicKeys,
     } = deriveKeys(sk);
 
-    const publicKeysHash = publicKeys.hash();
-    const account = computeAddress(publicKeysHash, partialAddress);
+    const { address: account } = CompleteAddress.fromSecretKeyAndPartialAddress(sk, partialAddress);
+
+    // const publicKeysHash = publicKeys.hash();
+    // const account = computeAddress(publicKeysHash, partialAddress);
 
     // Naming of keys is as follows ${account}-${n/iv/ov/t}${sk/pk}_m
     await this.#keys.set(`${account.toString()}-ivsk_m`, masterIncomingViewingSecretKey.toBuffer());
@@ -82,7 +84,7 @@ export class KeyStore {
     await this.#keys.set(`${account.toString()}-tpk_m_hash`, publicKeys.masterTaggingPublicKey.hash().toBuffer());
 
     // At last, we return the newly derived account address
-    return Promise.resolve(new CompleteAddress(account, publicKeys, partialAddress));
+    return Promise.resolve(CompleteAddress.fromSecretKeyAndPartialAddress(sk, partialAddress));
   }
 
   /**

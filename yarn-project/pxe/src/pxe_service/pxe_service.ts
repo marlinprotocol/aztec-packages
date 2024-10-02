@@ -141,7 +141,7 @@ export class PXEService implements PXE {
       }
 
       count++;
-      await this.synchronizer.addAccount(address.address, this.keyStore, this.config.l2StartingBlock);
+      await this.synchronizer.addAccount(address, this.keyStore, this.config.l2StartingBlock);
     }
 
     if (count > 0) {
@@ -200,7 +200,7 @@ export class PXEService implements PXE {
       this.log.info(`Account:\n "${accountCompleteAddress.address.toString()}"\n already registered.`);
       return accountCompleteAddress;
     } else {
-      await this.synchronizer.addAccount(accountCompleteAddress.address, this.keyStore, this.config.l2StartingBlock);
+      await this.synchronizer.addAccount(accountCompleteAddress, this.keyStore, this.config.l2StartingBlock);
       this.log.info(`Registered account ${accountCompleteAddress.address.toString()}`);
       this.log.debug(`Registered account\n ${accountCompleteAddress.toReadableString()}`);
     }
@@ -270,12 +270,12 @@ export class PXEService implements PXE {
           `Artifact does not match expected class id (computed ${contractClassId} but instance refers to ${instance.contractClassId})`,
         );
       }
-      if (
-        // Computed address from the instance does not match address inside instance
-        !computeContractAddressFromInstance(instance).equals(instance.address)
-      ) {
-        throw new Error('Added a contract in which the address does not match the contract instance.');
-      }
+      // if (
+      //   // Computed address from the instance does not match address inside instance
+      //   !computeContractAddressFromInstance(instance).equals(instance.address)
+      // ) {
+      //   throw new Error('Added a contract in which the address does not match the contract instance.');
+      // }
 
       await this.db.addContractArtifact(contractClassId, artifact);
       await this.node.addContractArtifact(instance.address, artifact);

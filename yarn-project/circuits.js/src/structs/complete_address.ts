@@ -3,7 +3,7 @@ import { Fr } from '@aztec/foundation/fields';
 import { BufferReader, serializeToBuffer } from '@aztec/foundation/serialize';
 
 import { computePartialAddress } from '../contract/contract_address.js';
-import { computeAddress, deriveKeys } from '../keys/index.js';
+import { computeAddress, deriveKeys, derivePublicKeyFromSecretKey } from '../keys/index.js';
 import { type PartialAddress } from '../types/partial_address.js';
 import { PublicKeys } from '../types/public_keys.js';
 
@@ -18,11 +18,14 @@ import { PublicKeys } from '../types/public_keys.js';
 export class CompleteAddress {
   public constructor(
     /** Contract address (typically of an account contract) */
+    // This is the new Address
     public address: AztecAddress,
     /** User public keys */
     public publicKeys: PublicKeys,
     /** Partial key corresponding to the public key to the address. */
     public partialAddress: PartialAddress,
+    // Old address
+    // computeAddress(publicKeys.hash(), partialAddress);
   ) {
     this.validate();
   }
@@ -35,9 +38,22 @@ export class CompleteAddress {
   }
 
   static fromSecretKeyAndPartialAddress(secretKey: Fr, partialAddress: Fr): CompleteAddress {
-    const { publicKeys } = deriveKeys(secretKey);
-    const address = computeAddress(publicKeys.hash(), partialAddress);
-    return new CompleteAddress(address, publicKeys, partialAddress);
+    const { publicKeys, masterIncomingViewingSecretKey } = deriveKeys(secretKey);
+    const oldAddress = computeAddress(publicKeys.hash(), partialAddress);
+
+    const combined = masterIncomingViewingSecretKey.add(oldAddress.toFq());
+
+    const addressPoint = derivePublicKeyFromSecretKey(combined);
+
+    if (!(addressPoint.y.toBigInt() <= (Fr.MODULUS - 1n) / 2n)) {
+      throw new Error('This is fucked (negative sign)')!
+    }
+
+    return new CompleteAddress(AztecAddress.fromField(addressPoint.x), publicKeys, partialAddress);
+  }
+
+  getPreAddress() {
+    return computeAddress(this.publicKeys.hash(), this.partialAddress);
   }
 
   static fromSecretKeyAndInstance(
@@ -50,12 +66,15 @@ export class CompleteAddress {
 
   /** Throws if the address is not correctly derived from the public key and partial address.*/
   public validate() {
-    const expectedAddress = computeAddress(this.publicKeys.hash(), this.partialAddress);
-    if (!expectedAddress.equals(this.address)) {
-      throw new Error(
-        `Address cannot be derived from public keys and partial address (received ${this.address.toString()}, derived ${expectedAddress.toString()})`,
-      );
-    }
+    // const expectedAddress = computeAddress(this.publicKeys.hash(), this.partialAddress);
+    // if (!expectedAddress.equals(this.oldAddress)) {
+    //   throw new Error(
+    //     `Address cannot be derived from public keys and partial address (received ${this.address.toString()}, derived ${expectedAddress.toString()})`,
+    //   );
+    // }
+
+    // We can not validate that address is correctly formed, because secret information is included now (ivsk).
+    // The best we can do is to tell whether the actual address is on the curve
   }
 
   /**
@@ -104,6 +123,7 @@ export class CompleteAddress {
     const address = reader.readObject(AztecAddress);
     const publicKeys = reader.readObject(PublicKeys);
     const partialAddress = reader.readObject(Fr);
+
     return new CompleteAddress(address, publicKeys, partialAddress);
   }
 
