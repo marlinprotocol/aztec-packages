@@ -69,6 +69,7 @@
     "@noir-lang/noirc_abi": "portal:../../noir/packages/noirc_abi",
     "@noir-lang/types": "portal:../../noir/packages/types",
     "commander": "^12.1.0",
+    "express": "^4.21.1",
     "source-map-support": "^0.5.21",
     "tslib": "^2.4.0"
   },
@@ -76,6 +77,7 @@
     "@aztec/ethereum": "workspace:^",
     "@aztec/types": "workspace:^",
     "@jest/globals": "^29.5.0",
+    "@types/express": "^5.0.0",
     "@types/jest": "^29.5.0",
     "@types/memdown": "^3.0.0",
     "@types/node": "^18.7.23",

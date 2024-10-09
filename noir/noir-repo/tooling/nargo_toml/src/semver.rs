@@ -15,6 +15,12 @@ pub(crate) fn semver_check_workspace(
     workspace: &Workspace,
     current_compiler_version: String,
 ) -> Result<(), ManifestError> {
+    let current_compiler_version = if current_compiler_version.ends_with('+') {
+        current_compiler_version.trim_end_matches('+').to_string()
+    } else {
+        current_compiler_version
+    };
+
     let version = parse_semver_compatible_version(&current_compiler_version)
         .expect("The compiler version is not a valid semver version");
     for package in &workspace.members {

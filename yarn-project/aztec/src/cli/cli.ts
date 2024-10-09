@@ -101,6 +101,9 @@ export function injectAztecCommands(program: Command, userLog: LogFn, debugLogge
       } else if (options.txe) {
         const { startTXE } = await import('./cmds/start_txe.js');
         startTXE(options, debugLogger);
+      } else if (options.kalypso) {
+        const {startDelegatedKalypsoStatelessProver} = await import ("./cmds/start_delegated_kalypso_prover.js")
+        services = await startDelegatedKalypsoStatelessProver(options, signalHandlers, userLog);
       } else if (options.sequencer) {
         userLog(`Cannot run a standalone sequencer without a node`);
         process.exit(1);

@@ -315,4 +315,12 @@ export const aztecStartOptions: { [key: string]: AztecStartOption[] } = {
       envVar: undefined,
     },
   ],
+  KALYPSO: [
+    {
+      flag: '--kalypso',
+      description: "Starts standalone stateless kalypso prover",
+      defaultValue: undefined,
+      envVar: undefined
+    }
+  ]
 };
