@@ -1,4 +1,4 @@
-import { BBNativeRollupProver, TestCircuitProver } from '@aztec/bb-prover';
+import { BBNativeRollupProver, KalypsoDelegatedProver, TestCircuitProver } from '@aztec/bb-prover';
 import { type ServerCircuitProver } from '@aztec/circuit-types';
 import { type ProverClientConfig, proverClientConfigMappings } from '@aztec/prover-client';
 import {
@@ -32,7 +32,11 @@ export const startProverAgent: ServiceStarter = async (options, signalHandlers, 
     if (!proverConfig.acvmBinaryPath || !proverConfig.bbBinaryPath) {
       throw new Error('Cannot start prover without simulation or native prover options');
     }
-    circuitProver = await BBNativeRollupProver.new(proverConfig, telemetry);
+    const backupProver = await BBNativeRollupProver.new(proverConfig, telemetry);
+    const daEndpoint = "http://88.198.12.137:8080/";
+    const provingServerEndPoint = "http://88.198.12.137:9001/directProof";
+
+    circuitProver = new KalypsoDelegatedProver(backupProver, telemetry, daEndpoint, provingServerEndPoint);
   } else {
     circuitProver = new TestCircuitProver(telemetry, undefined, proverConfig);
   }
