@@ -34,7 +34,7 @@ export const startProverAgent: ServiceStarter = async (options, signalHandlers, 
     }
     const backupProver = await BBNativeRollupProver.new(proverConfig, telemetry);
     const daEndpoint = "http://88.198.12.137:8080/";
-    const provingServerEndPoint = "http://5.9.81.82:9001/directProof";
+    const provingServerEndPoint = "http://88.198.12.137:9001/directProof";
 
     circuitProver = new KalypsoDelegatedProver(backupProver, telemetry, daEndpoint, provingServerEndPoint);
   } else {
