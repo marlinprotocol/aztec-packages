@@ -57,206 +57,206 @@ export class KalypsoDelegatedProver implements ServerCircuitProver {
   }
 
   @trackSpan('KalypsoDelegatedProver.getBaseParityProof', { [Attributes.PROTOCOL_CIRCUIT_NAME]: 'base-parity' })
-  getBaseParityProof(
+  async getBaseParityProof(
     inputs: BaseParityInputs,
     _signal?: AbortSignal,
     _epochNumber?: number,
   ): Promise<RootParityInput<typeof RECURSIVE_PROOF_LENGTH>> {
     try {
-      return this.actualProver.getBaseParityProof(inputs);
+      return await this.actualProver.getBaseParityProof(inputs);
     } catch (error) {
       logger.warn('Failed getBaseParityProof from Kalypso');
-      return this.backupProver.getBaseParityProof(inputs);
+      return await this.backupProver.getBaseParityProof(inputs);
     }
   }
 
   @trackSpan('KalypsoDelegatedProver.getRootParityProof', { [Attributes.PROTOCOL_CIRCUIT_NAME]: 'root-parity' })
-  getRootParityProof(
+  async getRootParityProof(
     inputs: RootParityInputs,
     _signal?: AbortSignal,
     _epochNumber?: number,
   ): Promise<RootParityInput<typeof NESTED_RECURSIVE_PROOF_LENGTH>> {
     try {
-      return this.actualProver.getRootParityProof(inputs);
+      return await this.actualProver.getRootParityProof(inputs);
     } catch (error) {
       logger.warn('Failed getRootParityProof from Kalypso');
-      return this.backupProver.getRootParityProof(inputs);
+      return await this.backupProver.getRootParityProof(inputs);
     }
   }
 
-  getBaseRollupProof(
+  async getBaseRollupProof(
     baseRollupInput: BaseRollupInputs,
     _signal?: AbortSignal,
     _epochNumber?: number,
   ): Promise<PublicInputsAndRecursiveProof<BaseOrMergeRollupPublicInputs>> {
     try {
-      return this.actualProver.getBaseRollupProof(baseRollupInput);
+      return await this.actualProver.getBaseRollupProof(baseRollupInput);
     } catch (error) {
       logger.warn('Failed getBaseRollupProof from Kalypso');
-      return this.backupProver.getBaseRollupProof(baseRollupInput);
+      return await this.backupProver.getBaseRollupProof(baseRollupInput);
     }
   }
 
-  getTubeProof(
+  async getTubeProof(
     tubeInput: TubeInputs,
     _signal?: AbortSignal,
     _epochNumber?: number,
   ): Promise<{ tubeVK: VerificationKeyData; tubeProof: RecursiveProof<typeof RECURSIVE_PROOF_LENGTH> }> {
     try {
-      return this.actualProver.getTubeProof(tubeInput);
+      return await this.actualProver.getTubeProof(tubeInput);
     } catch (error) {
       logger.warn('Failed getTubeProof from Kalypso');
-      return this.backupProver.getTubeProof(tubeInput);
+      return await this.backupProver.getTubeProof(tubeInput);
     }
   }
 
-  getMergeRollupProof(
+  async getMergeRollupProof(
     input: MergeRollupInputs,
     _signal?: AbortSignal,
     _epochNumber?: number,
   ): Promise<PublicInputsAndRecursiveProof<BaseOrMergeRollupPublicInputs>> {
     try {
-      return this.actualProver.getMergeRollupProof(input);
+      return await this.actualProver.getMergeRollupProof(input);
     } catch (error) {
       logger.error('Failed getMergeRollupProof from Kalypso');
-      return this.backupProver.getMergeRollupProof(input);
+      return await this.backupProver.getMergeRollupProof(input);
     }
   }
 
-  getBlockRootRollupProof(
+  async getBlockRootRollupProof(
     input: BlockRootRollupInputs,
     _signal?: AbortSignal,
     _epochNumber?: number,
   ): Promise<PublicInputsAndRecursiveProof<BlockRootOrBlockMergePublicInputs>> {
     try {
-      return this.actualProver.getBlockRootRollupProof(input);
+      return await this.actualProver.getBlockRootRollupProof(input);
     } catch (error) {
       logger.error('Failed getBlockRootRollupProof from Kalypso');
-      return this.backupProver.getBlockRootRollupProof(input);
+      return await this.backupProver.getBlockRootRollupProof(input);
     }
   }
 
-  getBlockRootRollupFinalProof(
+  async getBlockRootRollupFinalProof(
     input: BlockRootRollupInputs,
     _signal?: AbortSignal,
     _epochNumber?: number,
   ): Promise<PublicInputsAndRecursiveProof<BlockRootOrBlockMergePublicInputs>> {
     try {
-      return this.actualProver.getBlockRootRollupFinalProof(input);
+      return await this.actualProver.getBlockRootRollupFinalProof(input);
     } catch (error) {
       logger.error('Failed getBlockRootRollupProof from Kalypso');
-      return this.backupProver.getBlockRootRollupFinalProof(input);
+      return await this.backupProver.getBlockRootRollupFinalProof(input);
     }
   }
 
-  getBlockMergeRollupProof(
+  async getBlockMergeRollupProof(
     input: BlockMergeRollupInputs,
     _signal?: AbortSignal,
     _epochNumber?: number,
   ): Promise<PublicInputsAndRecursiveProof<BlockRootOrBlockMergePublicInputs>> {
     try {
-      return this.actualProver.getBlockMergeRollupProof(input);
+      return await this.actualProver.getBlockMergeRollupProof(input);
     } catch (error) {
       logger.error('Failed getBlockMergeRollupProof from Kalypso');
-      return this.backupProver.getBlockMergeRollupProof(input);
+      return await this.backupProver.getBlockMergeRollupProof(input);
     }
   }
 
-  getRootRollupProof(
+  async getRootRollupProof(
     input: RootRollupInputs,
     _signal?: AbortSignal,
     _epochNumber?: number,
   ): Promise<PublicInputsAndRecursiveProof<RootRollupPublicInputs>> {
     try {
-      return this.actualProver.getRootRollupProof(input);
+      return await this.actualProver.getRootRollupProof(input);
     } catch (error) {
       logger.error('Failed getRootRollupProof from Kalypso');
-      return this.getRootRollupProof(input);
+      return await this.getRootRollupProof(input);
     }
   }
 
   @trackSpan('KalypsoDelegatedProver.getPublicKernelInnerProof', {
     [Attributes.PROTOCOL_CIRCUIT_NAME]: 'public-kernel-inner',
   })
-  getPublicKernelInnerProof(
+  async getPublicKernelInnerProof(
     inputs: PublicKernelInnerCircuitPrivateInputs,
     _signal?: AbortSignal,
     _epochNumber?: number,
   ): Promise<PublicInputsAndRecursiveProof<VMCircuitPublicInputs>> {
     try {
-      return this.actualProver.getPublicKernelInnerProof(inputs);
+      return await this.actualProver.getPublicKernelInnerProof(inputs);
     } catch (error) {
       logger.error('Failed getPublicKernelInnerProof from Kalypso');
-      return this.backupProver.getPublicKernelInnerProof(inputs);
+      return await this.backupProver.getPublicKernelInnerProof(inputs);
     }
   }
 
   @trackSpan('KalypsoDelegatedProver.getPublicKernelMergeProof', {
     [Attributes.PROTOCOL_CIRCUIT_NAME]: 'public-kernel-merge',
   })
-  getPublicKernelMergeProof(
+  async getPublicKernelMergeProof(
     inputs: PublicKernelCircuitPrivateInputs,
     _signal?: AbortSignal,
     _epochNumber?: number,
   ): Promise<PublicInputsAndRecursiveProof<PublicKernelCircuitPublicInputs>> {
     try {
-      return this.actualProver.getPublicKernelMergeProof(inputs);
+      return await this.actualProver.getPublicKernelMergeProof(inputs);
     } catch (error) {
       logger.error('Failed getPublicKernelMergeProof from Kalypso');
-      return this.backupProver.getPublicKernelMergeProof(inputs);
+      return await this.backupProver.getPublicKernelMergeProof(inputs);
     }
   }
 
-  getPublicTailProof(
+  async getPublicTailProof(
     inputs: PublicKernelTailCircuitPrivateInputs,
     _signal?: AbortSignal,
     _epochNumber?: number,
   ): Promise<PublicInputsAndRecursiveProof<KernelCircuitPublicInputs>> {
     try {
-      return this.actualProver.getPublicTailProof(inputs);
+      return await this.actualProver.getPublicTailProof(inputs);
     } catch (error) {
       logger.error('Failed getPublicTailProof from Kalypso');
-      return this.backupProver.getPublicTailProof(inputs);
+      return await this.backupProver.getPublicTailProof(inputs);
     }
   }
 
-  getEmptyPrivateKernelProof(
+  async getEmptyPrivateKernelProof(
     inputs: PrivateKernelEmptyInputData,
     _signal?: AbortSignal,
     _epochNumber?: number,
   ): Promise<PublicInputsAndRecursiveProof<KernelCircuitPublicInputs>> {
     try {
-      return this.actualProver.getEmptyPrivateKernelProof(inputs);
+      return await this.actualProver.getEmptyPrivateKernelProof(inputs);
     } catch (error) {
       logger.error('Failed getEmptyPrivateKernelProof from Kalypso');
-      return this.backupProver.getEmptyPrivateKernelProof(inputs);
+      return await this.backupProver.getEmptyPrivateKernelProof(inputs);
     }
   }
 
-  getEmptyTubeProof(
+  async getEmptyTubeProof(
     inputs: PrivateKernelEmptyInputData,
     _signal?: AbortSignal,
     _epochNumber?: number,
   ): Promise<PublicInputsAndTubeProof<KernelCircuitPublicInputs>> {
     try {
-      return this.actualProver.getEmptyTubeProof(inputs);
+      return await this.actualProver.getEmptyTubeProof(inputs);
     } catch (error) {
       logger.error('Failed getEmptyTubeProof from Kalypso');
-      return this.backupProver.getEmptyTubeProof(inputs);
+      return await this.backupProver.getEmptyTubeProof(inputs);
     }
   }
 
   @trackSpan('KalypsoDelegatedProver.getAvmProof', inputs => ({ [Attributes.APP_CIRCUIT_NAME]: inputs.functionName }))
-  getAvmProof(
+  async getAvmProof(
     inputs: AvmCircuitInputs,
     _signal?: AbortSignal,
     _epochNumber?: number,
   ): Promise<AvmProofAndVerificationKey> {
     try {
-      return this.actualProver.getAvmProof(inputs);
+      return await this.actualProver.getAvmProof(inputs);
     } catch (error) {
       logger.error('Failed getBlockRootRollupProof from Kalypso');
-      return this.backupProver.getAvmProof(inputs);
+      return await this.backupProver.getAvmProof(inputs);
     }
   }
 }
