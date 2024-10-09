@@ -45,8 +45,8 @@ export class KalypsoDelegatedProver implements ServerCircuitProver {
   constructor(
     private backupProver: BBNativeRollupProver,
     telemetry: TelemetryClient,
-    private daEndpoint: string = 'http://88.198.12.137:8080/',
-    private provingServerEndPoint: string = 'http://5.9.81.82:9001/directProof',
+    private daEndpoint: string,
+    private provingServerEndPoint: string,
   ) {
     this.actualProver = new ActualProver(this.daEndpoint, this.provingServerEndPoint);
     this.instrumentation = new ProverInstrumentation(telemetry, 'KalypsoDelegatedProver');
