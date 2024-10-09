@@ -104,6 +104,9 @@ export function injectAztecCommands(program: Command, userLog: LogFn, debugLogge
       } else if (options.sequencer) {
         userLog(`Cannot run a standalone sequencer without a node`);
         process.exit(1);
+      }else if (options.kalypso) {
+        const {startDelegatedKalypsoStatelessProver} = await import ("./cmds/start_delegated_kalypso_prover.js")
+        services = await startDelegatedKalypsoStatelessProver(options, signalHandlers, userLog);
       } else {
         userLog(`No module specified to start`);
         process.exit(1);
