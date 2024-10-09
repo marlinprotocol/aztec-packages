@@ -7,20 +7,8 @@ docker build -t aztecprotocol/barretenberg-wasm-linux-clang -f ./barretenberg/cp
 docker build -t aztecprotocol/bb.js -f ./barretenberg/ts/Dockerfile ./barretenberg/ts
 docker build -t aztecprotocol/noir-packages -f noir/Dockerfile.packages ./noir
 
-# little complex for l1-contracts
-cd l1-contracts
-forge install --no-commit
-# Ensure libraries are at the correct version
-git submodule update --init --recursive ./lib
-cd ..
-
+# this may fail, may be try pulling contracts first and then build
 docker build -t aztecprotocol/l1-contracts -f l1-contracts/Dockerfile ./l1-contracts
-
-cd l1-contracts
-./bootstrap.sh clean
-cd ..
-
-# l1-contracts complete
 
 docker build -t aztecprotocol/barretenberg-x86_64-linux-clang -f ./barretenberg/cpp/dockerfiles/Dockerfile.x86_64-linux-clang ./barretenberg/cpp
 docker build -t aztecprotocol/noir-projects -f ./noir-projects/Dockerfile ./noir-projects
