@@ -1,4 +1,4 @@
-import { BBNativeRollupProver, type BBProverConfig } from '@aztec/bb-prover';
+import { BBNativeRollupProver, type BBProverConfig } from './bb_prover.js';
 import {
   AvmCircuitInputs,
   BaseParityInputs,
