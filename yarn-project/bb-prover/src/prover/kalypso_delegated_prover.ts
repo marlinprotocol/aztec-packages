@@ -171,7 +171,7 @@ export class KalypsoDelegatedProver implements ServerCircuitProver {
       return await this.actualProver.getRootRollupProof(input);
     } catch (error) {
       logger.error('Failed getRootRollupProof from Kalypso');
-      return await this.getRootRollupProof(input);
+      return await this.actualProver.getRootRollupProof(input);
     }
   }
 
