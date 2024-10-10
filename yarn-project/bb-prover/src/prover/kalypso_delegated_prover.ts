@@ -43,10 +43,10 @@ import {
     private actualProver: ActualProver;
     private instrumentation: ProverInstrumentation;
     constructor(
-      private backupProver: BBNativeRollupProver,
+      private backupProver: BBNativeRollupProver | undefined,
       telemetry: TelemetryClient,
       private daUrl: string,
-      private provingServerEndPoint: string,
+      private provingServerEndPoint: string
     ) {
       this.actualProver = new ActualProver(this.daUrl, this.provingServerEndPoint);
       this.instrumentation = new ProverInstrumentation(telemetry, 'KalypsoDelegatedProver');
@@ -66,6 +66,7 @@ import {
         return await this.actualProver.getBaseParityProof(inputs);
       } catch (error) {
         logger.warn('Failed getBaseParityProof from Kalypso');
+        if(!this.backupProver) {throw error;}
         return await this.backupProver.getBaseParityProof(inputs);
       }
     }
@@ -80,6 +81,7 @@ import {
         return await this.actualProver.getRootParityProof(inputs);
       } catch (error) {
         logger.warn('Failed getRootParityProof from Kalypso');
+        if(!this.backupProver) {throw error;}
         return await this.backupProver.getRootParityProof(inputs);
       }
     }
@@ -93,6 +95,7 @@ import {
         return await this.actualProver.getBaseRollupProof(baseRollupInput);
       } catch (error) {
         logger.warn('Failed getBaseRollupProof from Kalypso');
+        if(!this.backupProver) {throw error;}
         return await this.backupProver.getBaseRollupProof(baseRollupInput);
       }
     }
@@ -106,6 +109,7 @@ import {
         return await this.actualProver.getTubeProof(tubeInput);
       } catch (error) {
         logger.warn('Failed getTubeProof from Kalypso');
+        if(!this.backupProver) {throw error;}
         return await this.backupProver.getTubeProof(tubeInput);
       }
     }
@@ -119,6 +123,7 @@ import {
         return await this.actualProver.getMergeRollupProof(input);
       } catch (error) {
         logger.error('Failed getMergeRollupProof from Kalypso');
+        if(!this.backupProver) {throw error;}
         return await this.backupProver.getMergeRollupProof(input);
       }
     }
@@ -132,6 +137,7 @@ import {
         return await this.actualProver.getBlockRootRollupProof(input);
       } catch (error) {
         logger.error('Failed getBlockRootRollupProof from Kalypso');
+        if(!this.backupProver) {throw error;}
         return await this.backupProver.getBlockRootRollupProof(input);
       }
     }
@@ -145,6 +151,7 @@ import {
         return await this.actualProver.getBlockRootRollupFinalProof(input);
       } catch (error) {
         logger.error('Failed getBlockRootRollupProof from Kalypso');
+        if(!this.backupProver) {throw error;}
         return await this.backupProver.getBlockRootRollupFinalProof(input);
       }
     }
@@ -158,6 +165,7 @@ import {
         return await this.actualProver.getBlockMergeRollupProof(input);
       } catch (error) {
         logger.error('Failed getBlockMergeRollupProof from Kalypso');
+        if(!this.backupProver) {throw error;}
         return await this.backupProver.getBlockMergeRollupProof(input);
       }
     }
@@ -171,7 +179,8 @@ import {
         return await this.actualProver.getRootRollupProof(input);
       } catch (error) {
         logger.error('Failed getRootRollupProof from Kalypso');
-        return await this.actualProver.getRootRollupProof(input);
+        if(!this.backupProver) {throw error;}
+        return await this.backupProver.getRootRollupProof(input);
       }
     }
 
@@ -187,6 +196,7 @@ import {
         return await this.actualProver.getPublicKernelInnerProof(inputs);
       } catch (error) {
         logger.error('Failed getPublicKernelInnerProof from Kalypso');
+        if(!this.backupProver) {throw error;}
         return await this.backupProver.getPublicKernelInnerProof(inputs);
       }
     }
@@ -203,6 +213,7 @@ import {
         return await this.actualProver.getPublicKernelMergeProof(inputs);
       } catch (error) {
         logger.error('Failed getPublicKernelMergeProof from Kalypso');
+        if(!this.backupProver) {throw error;}
         return await this.backupProver.getPublicKernelMergeProof(inputs);
       }
     }
@@ -216,6 +227,7 @@ import {
         return await this.actualProver.getPublicTailProof(inputs);
       } catch (error) {
         logger.error('Failed getPublicTailProof from Kalypso');
+        if(!this.backupProver) {throw error;}
         return await this.backupProver.getPublicTailProof(inputs);
       }
     }
@@ -229,6 +241,7 @@ import {
         return await this.actualProver.getEmptyPrivateKernelProof(inputs);
       } catch (error) {
         logger.error('Failed getEmptyPrivateKernelProof from Kalypso');
+        if(!this.backupProver) {throw error;}
         return await this.backupProver.getEmptyPrivateKernelProof(inputs);
       }
     }
@@ -242,6 +255,7 @@ import {
         return await this.actualProver.getEmptyTubeProof(inputs);
       } catch (error) {
         logger.error('Failed getEmptyTubeProof from Kalypso');
+        if(!this.backupProver) {throw error;}
         return await this.backupProver.getEmptyTubeProof(inputs);
       }
     }
@@ -256,6 +270,7 @@ import {
         return await this.actualProver.getAvmProof(inputs);
       } catch (error) {
         logger.error('Failed getBlockRootRollupProof from Kalypso');
+        if(!this.backupProver) {throw error;}
         return await this.backupProver.getAvmProof(inputs);
       }
     }

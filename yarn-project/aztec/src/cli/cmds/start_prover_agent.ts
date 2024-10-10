@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { BBNativeRollupProver, KalypsoDelegatedProver, TestCircuitProver } from '@aztec/bb-prover';
 import { type ServerCircuitProver } from '@aztec/circuit-types';
 import { type ProverClientConfig, proverClientConfigMappings } from '@aztec/prover-client';
@@ -32,11 +33,11 @@ export const startProverAgent: ServiceStarter = async (options, signalHandlers, 
     if (!proverConfig.acvmBinaryPath || !proverConfig.bbBinaryPath) {
       throw new Error('Cannot start prover without simulation or native prover options');
     }
-    const backupProver = await BBNativeRollupProver.new(proverConfig, telemetry);
+    // const backupProver = await BBNativeRollupProver.new(proverConfig, telemetry);
     const daUrl = "http://88.198.12.137:8080";
     const provingServerEndPoint = "http://88.198.12.137:9001/directProof";
 
-    circuitProver = new KalypsoDelegatedProver(backupProver, telemetry, daUrl, provingServerEndPoint);
+    circuitProver = new KalypsoDelegatedProver(undefined, telemetry, daUrl, provingServerEndPoint);
   } else {
     circuitProver = new TestCircuitProver(telemetry, undefined, proverConfig);
   }
