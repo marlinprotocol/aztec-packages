@@ -34,7 +34,7 @@ export class KalypsoRemoteStatelessProver {
   constructor(
     private config: BBProverConfig,
     private telemetry: TelemetryClient,
-    private daEndpoint: string,
+    private daUrl: string,
     private port: number = 8001,
   ) {
     this.app = express();
@@ -264,7 +264,7 @@ export class KalypsoRemoteStatelessProver {
   }
 
   private async fetchDataFromDa(id: string): Promise<string> {
-    const response = await fetch(`${this.daEndpoint}${id}`, {
+    const response = await fetch(`${this.daUrl}/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -280,7 +280,7 @@ export class KalypsoRemoteStatelessProver {
   }
 
   private async storeDataInDa(payload: string): Promise<string> {
-    const response = await fetch(`${this.daEndpoint}/store`, {
+    const response = await fetch(`${this.daUrl}/store`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
