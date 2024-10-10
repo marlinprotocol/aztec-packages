@@ -294,12 +294,14 @@ import {
         });
 
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+          logger.error("postRequestToKalypsoServer: "+ response.status);
+          throw new Error(`HTTP error! Status: ${response.status}\nBody: ${response.body}`);
         }
 
         const responseData: U = await response.json();
         return responseData;
       } catch (error) {
+        logger.error("Error posting info to kalypso server");
         throw new Error(`Error in POST request: ${error}`);
       }
     }
