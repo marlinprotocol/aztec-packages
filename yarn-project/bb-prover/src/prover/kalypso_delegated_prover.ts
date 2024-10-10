@@ -301,7 +301,11 @@ import {
         const responseData: U = await response.json();
         return responseData;
       } catch (error) {
-        logger.error("Error posting info to kalypso server");
+        if (error instanceof Error) {
+          logger.error("Error posting info to Kalypso server: ", error.message);
+        } else {
+          logger.error("Error posting info to Kalypso server: ", error);
+        }
         throw new Error(`Error in POST request: ${error}`);
       }
     }
