@@ -67,6 +67,12 @@ export class KalypsoRemoteStatelessProver {
       return;
     });
 
+    // TODO: dummy logic now
+    this.app.post('/api/checkInput',  (_: Request, res: Response) => {
+      res.json({ valid: true });
+      return;
+    });
+
     this.app.post('/api/getProof', async (req: Request, res: Response) => {
       try {
         const body = req.body as { public: Uint8Array };
