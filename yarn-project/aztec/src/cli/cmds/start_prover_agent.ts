@@ -33,10 +33,10 @@ export const startProverAgent: ServiceStarter = async (options, signalHandlers, 
       throw new Error('Cannot start prover without simulation or native prover options');
     }
     const backupProver = await BBNativeRollupProver.new(proverConfig, telemetry);
-    const daEndpoint = "http://88.198.12.137:8080/";
+    const daUrl = "http://88.198.12.137:8080";
     const provingServerEndPoint = "http://88.198.12.137:9001/directProof";
 
-    circuitProver = new KalypsoDelegatedProver(backupProver, telemetry, daEndpoint, provingServerEndPoint);
+    circuitProver = new KalypsoDelegatedProver(backupProver, telemetry, daUrl, provingServerEndPoint);
   } else {
     circuitProver = new TestCircuitProver(telemetry, undefined, proverConfig);
   }

@@ -10,7 +10,7 @@ export const startDelegatedKalypsoStatelessProver: ServiceStarter = async (optio
   const telemetry = await createAndStartTelemetryClient(telemetryConfig);
 
   logger(`Starting to delegated prover at`);
-  const kalypsoRemoteProver = new KalypsoRemoteStatelessProver(proverConfig, telemetry, "http://88.198.12.137:8080/");
+  const kalypsoRemoteProver = new KalypsoRemoteStatelessProver(proverConfig, telemetry, "http://88.198.12.137:8080");
 
   await kalypsoRemoteProver.start()
   return [];

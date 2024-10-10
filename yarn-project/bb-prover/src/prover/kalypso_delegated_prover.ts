@@ -45,10 +45,10 @@ import {
     constructor(
       private backupProver: BBNativeRollupProver,
       telemetry: TelemetryClient,
-      private daEndpoint: string,
+      private daUrl: string,
       private provingServerEndPoint: string,
     ) {
-      this.actualProver = new ActualProver(this.daEndpoint, this.provingServerEndPoint);
+      this.actualProver = new ActualProver(this.daUrl, this.provingServerEndPoint);
       this.instrumentation = new ProverInstrumentation(telemetry, 'KalypsoDelegatedProver');
     }
 
@@ -263,12 +263,12 @@ import {
 
   class ActualProver implements ServerCircuitProver {
     constructor(
-      private daEndpoint: string,
+      private daUrl: string,
       private provingServerEndPoint: string,
     ) {}
 
     async fetchDataFromDa(id: string): Promise<string> {
-      const response = await fetch(`${this.daEndpoint}${id}`, {
+      const response = await fetch(`${this.daUrl}/${id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
