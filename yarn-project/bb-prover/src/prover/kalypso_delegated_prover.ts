@@ -45,6 +45,7 @@ interface KalypsoRequest {
 }
 
 interface ProofId {
+  complete: boolean
   proof_da_identifier: string;
 }
 
@@ -339,13 +340,18 @@ class ActualProver implements ServerCircuitProver {
     return responseData.payload;
   }
 
-  async retry<T>(fn: () => Promise<T>, retries: number, interval: number): Promise<T> {
+  async retry<T extends ProofId>(fn: () => Promise<T>, retries: number, interval: number): Promise<T> {
     let lastError: any;
 
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         // Attempt to execute the function
-        return await fn();
+        const result = await fn();
+        if (result.complete && result.proof_da_identifier){
+          return result
+        }else{
+          throw new Error("Proof not complete yet")
+        }
       } catch (error) {
         lastError = error;
         if (attempt < retries) {
