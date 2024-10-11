@@ -436,7 +436,7 @@ class ActualProver implements ServerCircuitProver {
     });
 
     // eslint-disable-next-line camelcase
-    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 100, 5000);
+    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 12345, 5000);
     const proof = await this.fetchDataFromDa(proof_da_identifier);
     const toReturn = RootParityInput.fromString<typeof RECURSIVE_PROOF_LENGTH>(proof);
     return toReturn;
@@ -454,7 +454,7 @@ class ActualProver implements ServerCircuitProver {
     });
 
     // eslint-disable-next-line camelcase
-    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 100, 5000);
+    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 12345, 5000);
     const proof = await this.fetchDataFromDa(proof_da_identifier);
     const toReturn = RootParityInput.fromString<typeof NESTED_RECURSIVE_PROOF_LENGTH>(proof);
     return toReturn;
@@ -472,7 +472,7 @@ class ActualProver implements ServerCircuitProver {
     });
 
     // eslint-disable-next-line camelcase
-    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 100, 5000);
+    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 12345, 5000);
     const proof = await this.fetchDataFromDa(proof_da_identifier);
     const { circuitOutputString, recursiveProofString, verificationKeyString } = JSON.parse(proof) as {
       circuitOutputString: string;
@@ -499,7 +499,7 @@ class ActualProver implements ServerCircuitProver {
     });
 
     // eslint-disable-next-line camelcase
-    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 100, 1500000);
+    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 12345, 1500000);
 
     const proof = await this.fetchDataFromDa(proof_da_identifier);
     const { tubeVkString, recursiveProofString } = JSON.parse(proof) as {
@@ -524,7 +524,7 @@ class ActualProver implements ServerCircuitProver {
     });
 
     // eslint-disable-next-line camelcase
-    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 100, 5000);
+    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 12345, 5000);
 
     const proof = await this.fetchDataFromDa(proof_da_identifier);
     const { circuitOutputString, recursiveProofString, verificationKeyString } = JSON.parse(proof) as {
@@ -552,7 +552,7 @@ class ActualProver implements ServerCircuitProver {
     });
 
     // eslint-disable-next-line camelcase
-    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 100, 5000);
+    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 12345, 5000);
 
     const proof = await this.fetchDataFromDa(proof_da_identifier);
     const { circuitOutputString, recursiveProofString, verificationKeyString } = JSON.parse(proof) as {
@@ -580,7 +580,7 @@ class ActualProver implements ServerCircuitProver {
     });
 
     // eslint-disable-next-line camelcase
-    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 100, 5000);
+    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 12345, 5000);
 
     const proof = await this.fetchDataFromDa(proof_da_identifier);
     const { circuitOutputString, recursiveProofString, verificationKeyString } = JSON.parse(proof) as {
@@ -608,7 +608,7 @@ class ActualProver implements ServerCircuitProver {
     });
 
     // eslint-disable-next-line camelcase
-    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 100, 5000);
+    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 12345, 5000);
 
     const proof = await this.fetchDataFromDa(proof_da_identifier);
     const { circuitOutputString, recursiveProofString, verificationKeyString } = JSON.parse(proof) as {
@@ -636,7 +636,7 @@ class ActualProver implements ServerCircuitProver {
     });
 
     // eslint-disable-next-line camelcase
-    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 100, 5000);
+    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 12345, 5000);
 
     const proof = await this.fetchDataFromDa(proof_da_identifier);
     const { circuitOutputString, recursiveProofString, verificationKeyString } = JSON.parse(proof) as {
@@ -664,7 +664,7 @@ class ActualProver implements ServerCircuitProver {
     });
 
     // eslint-disable-next-line camelcase
-    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 100, 5000);
+    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 12345, 5000);
 
     const proof = await this.fetchDataFromDa(proof_da_identifier);
     const { circuitOutputString, recursiveProofString, verificationKeyString } = JSON.parse(proof) as {
@@ -692,7 +692,7 @@ class ActualProver implements ServerCircuitProver {
     });
 
     // eslint-disable-next-line camelcase
-    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 100, 5000);
+    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 12345, 5000);
 
     const proof = await this.fetchDataFromDa(proof_da_identifier);
     const { circuitOutputString, recursiveProofString, verificationKeyString } = JSON.parse(proof) as {
@@ -720,7 +720,7 @@ class ActualProver implements ServerCircuitProver {
     });
 
     // eslint-disable-next-line camelcase
-    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 100, 5000);
+    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 12345, 5000);
 
     const proof = await this.fetchDataFromDa(proof_da_identifier);
     const { circuitOutputString, recursiveProofString, verificationKeyString } = JSON.parse(proof) as {
@@ -748,7 +748,7 @@ class ActualProver implements ServerCircuitProver {
     });
 
     // eslint-disable-next-line camelcase
-    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 100, 5000);
+    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 12345, 5000);
 
     const proof = await this.fetchDataFromDa(proof_da_identifier);
     const { circuitOutputString, recursiveProofString, verificationKeyString } = JSON.parse(proof) as {
@@ -776,7 +776,7 @@ class ActualProver implements ServerCircuitProver {
     });
 
     // eslint-disable-next-line camelcase
-    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 100, 120000);
+    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 12345, 120000);
 
     const proof = await this.fetchDataFromDa(proof_da_identifier);
     const { circuitOutputString, recursiveProofString, verificationKeyString } = JSON.parse(proof) as {
@@ -804,7 +804,7 @@ class ActualProver implements ServerCircuitProver {
     });
 
     // eslint-disable-next-line camelcase
-    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 100, 5000);
+    const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 12345, 5000);
 
     const proof = await this.fetchDataFromDa(proof_da_identifier);
     const { recursiveProofString, verificationKeyString } = JSON.parse(proof) as {
