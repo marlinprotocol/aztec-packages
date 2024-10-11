@@ -229,6 +229,10 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: privateKernelEmptyInputProof?.inputs.toString(),
             recursiveProofString: privateKernelEmptyInputProof?.proof.toString(),
             verificationKeyString: privateKernelEmptyInputProof?.verificationKey.toString(),
+            customData : {
+              rawProof : privateKernelEmptyInputProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey : privateKernelEmptyInputProof.verificationKey.keyAsBytes.toString('hex')
+            }
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
