@@ -1,6 +1,6 @@
 import { type AvmCircuitInputs } from '@aztec/circuits.js';
 import { sha256 } from '@aztec/foundation/crypto';
-import { type LogFn, currentLevel as currentLogLevel } from '@aztec/foundation/log';
+import { type LogFn, createDebugLogger, currentLevel as currentLogLevel } from '@aztec/foundation/log';
 import { Timer } from '@aztec/foundation/timer';
 import { type NoirCompiledCircuit } from '@aztec/types/noir';
 
@@ -9,6 +9,8 @@ import * as fs from 'fs/promises';
 import { basename, dirname, join } from 'path';
 
 import { type UltraHonkFlavor } from '../honk.js';
+
+const commandLogger = createDebugLogger("bb::command::logger");
 
 export const VK_FILENAME = 'vk';
 export const VK_FIELDS_FILENAME = 'vk_fields.json';
@@ -74,6 +76,7 @@ export function executeBB(
     const { HARDWARE_CONCURRENCY: _, ...envWithoutConcurrency } = process.env;
     const env = process.env.HARDWARE_CONCURRENCY ? process.env : envWithoutConcurrency;
     logger(`Executing BB with: ${command} ${args.join(' ')}`);
+    commandLogger.info(`Executing BB with: ${command} ${args.join(' ')}`);
     const bb = proc.spawn(pathToBB, [command, ...args], {
       env,
     });
