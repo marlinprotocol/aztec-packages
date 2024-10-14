@@ -104,6 +104,10 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: baseRollupProof!.inputs.toString(),
             recursiveProofString: baseRollupProof!.proof.toString(),
             verificationKeyString: baseRollupProof!.verificationKey.toString(),
+            customData : {
+              rawProof : baseRollupProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey : baseRollupProof.verificationKey.keyAsBytes.toString('hex')
+            }
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
@@ -115,6 +119,10 @@ export class KalypsoRemoteStatelessProver {
           const proof = {
             tubeVkString: completeProof!.tubeVK.toString(),
             recursiveProofString: completeProof!.tubeProof.toString(),
+            customData : {
+              rawProof : completeProof.tubeProof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey : completeProof.tubeVK.keyAsBytes.toString('hex'),
+            }
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
@@ -127,6 +135,10 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: mergeRollupProof!.inputs.toString(),
             recursiveProofString: mergeRollupProof!.proof.toString(),
             verificationKeyString: mergeRollupProof!.verificationKey.toString(),
+            customData : {
+              rawProof : mergeRollupProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey : mergeRollupProof.verificationKey.keyAsBytes.toString('hex'),
+            }
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
@@ -139,6 +151,10 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: blockRootRollupProof!.inputs.toString(),
             recursiveProofString: blockRootRollupProof!.proof.toString(),
             verificationKeyString: blockRootRollupProof!.verificationKey.toString(),
+            customData : {
+              rawProof : blockRootRollupProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey : blockRootRollupProof.verificationKey.keyAsBytes.toString('hex'),
+            }
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
@@ -151,6 +167,10 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: blockRootRollupProof!.inputs.toString(),
             recursiveProofString: blockRootRollupProof!.proof.toString(),
             verificationKeyString: blockRootRollupProof!.verificationKey.toString(),
+            customData : {
+              rawProof : blockRootRollupProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey : blockRootRollupProof.verificationKey.keyAsBytes.toString('hex'),
+            }
           };
 
           const proofString = JSON.stringify(proof);
@@ -164,6 +184,10 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: blockMergeRollupProof!.inputs.toString(),
             recursiveProofString: blockMergeRollupProof!.proof.toString(),
             verificationKeyString: blockMergeRollupProof!.verificationKey.toString(),
+            customData : {
+              rawProof : blockMergeRollupProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey : blockMergeRollupProof.verificationKey.keyAsBytes.toString('hex'),
+            }
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
@@ -176,6 +200,10 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: rootRollupProof!.inputs.toString(),
             recursiveProofString: rootRollupProof!.proof.toString(),
             verificationKeyString: rootRollupProof!.verificationKey.toString(),
+            customData : {
+              rawProof :rootRollupProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey : rootRollupProof.verificationKey.keyAsBytes.toString('hex'),
+            }
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
@@ -189,6 +217,10 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: publicKernelInnerCircuitProof!.inputs.toString(),
             recursiveProofString: publicKernelInnerCircuitProof!.proof.toString(),
             verificationKeyString: publicKernelInnerCircuitProof!.verificationKey.toString(),
+            customData : {
+              rawProof : publicKernelInnerCircuitProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey : publicKernelInnerCircuitProof.verificationKey.keyAsBytes.toString('hex'),
+            }
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
@@ -204,6 +236,10 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: publicKernelCircuitPrivateProof!.inputs.toString(),
             recursiveProofString: publicKernelCircuitPrivateProof!.proof.toString(),
             verificationKeyString: publicKernelCircuitPrivateProof!.verificationKey.toString(),
+            customData : {
+              rawProof : publicKernelCircuitPrivateProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey : publicKernelCircuitPrivateProof.verificationKey.keyAsBytes.toString('hex'),
+            }
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
@@ -216,6 +252,10 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: publicTailProof?.inputs.toString(),
             recursiveProofString: publicTailProof?.proof.toString(),
             verificationKeyString: publicTailProof?.verificationKey.toString(),
+            customData : {
+              rawProof : publicTailProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey : publicTailProof.verificationKey.keyAsBytes.toString('hex'),
+            }
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
@@ -246,6 +286,10 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: privateKernelEmptyInputProof?.inputs.toString(),
             recursiveProofString: privateKernelEmptyInputProof?.proof.toString(),
             verificationKeyString: privateKernelEmptyInputProof?.verificationKey.toString(),
+            customData : {
+              rawProof : privateKernelEmptyInputProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey : privateKernelEmptyInputProof.verificationKey.keyAsBytes.toString('hex'),
+            }
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
@@ -257,7 +301,11 @@ export class KalypsoRemoteStatelessProver {
 
           const proof = {
             recursiveProofString: avmProof.proof.toString(),
-            verificationKeyString: avmProof.proof.toString(),
+            verificationKeyString: avmProof.verificationKey.toString(),
+            customData : {
+              rawProof : avmProof.proof.buffer.toString('hex'),
+              rawVerifiedKey : avmProof.verificationKey.keyAsBytes.toString('hex'),
+            }
           };
 
           const proofString = JSON.stringify(proof);
