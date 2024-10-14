@@ -316,6 +316,11 @@ export class KalypsoRemoteStatelessProver {
           res.status(404).json({ proof: new Uint8Array(Buffer.from('Proof not supported')) });
         }
       } catch (error) {
+        if (error instanceof Error) {
+          logger.error('Error querying proof info from Kalypso server: ', error.message);
+        } else {
+          logger.error('Error querying proof info from Kalypso server: ', error);
+        }
         res.status(500).json({ proof: new Uint8Array(Buffer.from('Some error')) });
       }
       return;
