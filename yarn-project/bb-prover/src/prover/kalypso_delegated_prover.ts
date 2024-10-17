@@ -32,6 +32,7 @@ import {
   type AvmCircuitInputs,
   Proof,
   AvmVerificationKeyData,
+  type TUBE_PROOF_LENGTH,
 } from '@aztec/circuits.js';
 import { type BBNativeRollupProver } from './bb_prover.js';
 import { Attributes, type TelemetryClient, trackSpan } from '@aztec/telemetry-client';
@@ -481,7 +482,7 @@ class ActualProver implements ServerCircuitProver {
     };
 
     const circuitOutput = BaseOrMergeRollupPublicInputs.fromString(circuitOutputString);
-    const recursiveProof = RecursiveProof.fromString<typeof RECURSIVE_PROOF_LENGTH>(recursiveProofString);
+    const recursiveProof = RecursiveProof.fromString<typeof NESTED_RECURSIVE_PROOF_LENGTH>(recursiveProofString);
     const verificationKey = VerificationKeyData.fromString(verificationKeyString);
 
     return makePublicInputsAndRecursiveProof(circuitOutput, recursiveProof, verificationKey);
@@ -508,7 +509,7 @@ class ActualProver implements ServerCircuitProver {
     };
     return {
       tubeVK: VerificationKeyData.fromString(tubeVkString),
-      tubeProof: RecursiveProof.fromString<typeof RECURSIVE_PROOF_LENGTH>(recursiveProofString),
+      tubeProof: RecursiveProof.fromString<typeof TUBE_PROOF_LENGTH>(recursiveProofString),
     };
   }
 
@@ -534,7 +535,7 @@ class ActualProver implements ServerCircuitProver {
     };
 
     const circuitOutput = BaseOrMergeRollupPublicInputs.fromString(circuitOutputString);
-    const recursiveProof = RecursiveProof.fromString<typeof RECURSIVE_PROOF_LENGTH>(recursiveProofString);
+    const recursiveProof = RecursiveProof.fromString<typeof NESTED_RECURSIVE_PROOF_LENGTH>(recursiveProofString);
     const verificationKey = VerificationKeyData.fromString(verificationKeyString);
 
     return makePublicInputsAndRecursiveProof(circuitOutput, recursiveProof, verificationKey);
@@ -562,7 +563,7 @@ class ActualProver implements ServerCircuitProver {
     };
 
     const circuitOutput = BlockRootOrBlockMergePublicInputs.fromString(circuitOutputString);
-    const recursiveProof = RecursiveProof.fromString<typeof RECURSIVE_PROOF_LENGTH>(recursiveProofString);
+    const recursiveProof = RecursiveProof.fromString<typeof NESTED_RECURSIVE_PROOF_LENGTH>(recursiveProofString);
     const verificationKey = VerificationKeyData.fromString(verificationKeyString);
 
     return makePublicInputsAndRecursiveProof(circuitOutput, recursiveProof, verificationKey);
@@ -590,7 +591,7 @@ class ActualProver implements ServerCircuitProver {
     };
 
     const circuitOutput = BlockRootOrBlockMergePublicInputs.fromString(circuitOutputString);
-    const recursiveProof = RecursiveProof.fromString<typeof RECURSIVE_PROOF_LENGTH>(recursiveProofString);
+    const recursiveProof = RecursiveProof.fromString<typeof NESTED_RECURSIVE_PROOF_LENGTH>(recursiveProofString);
     const verificationKey = VerificationKeyData.fromString(verificationKeyString);
 
     return makePublicInputsAndRecursiveProof(circuitOutput, recursiveProof, verificationKey);
@@ -618,7 +619,7 @@ class ActualProver implements ServerCircuitProver {
     };
 
     const circuitOutput = BlockRootOrBlockMergePublicInputs.fromString(circuitOutputString);
-    const recursiveProof = RecursiveProof.fromString<typeof RECURSIVE_PROOF_LENGTH>(recursiveProofString);
+    const recursiveProof = RecursiveProof.fromString<typeof NESTED_RECURSIVE_PROOF_LENGTH>(recursiveProofString);
     const verificationKey = VerificationKeyData.fromString(verificationKeyString);
 
     return makePublicInputsAndRecursiveProof(circuitOutput, recursiveProof, verificationKey);
@@ -646,7 +647,7 @@ class ActualProver implements ServerCircuitProver {
     };
 
     const circuitOutput = RootRollupPublicInputs.fromString(circuitOutputString);
-    const recursiveProof = RecursiveProof.fromString<typeof RECURSIVE_PROOF_LENGTH>(recursiveProofString);
+    const recursiveProof = RecursiveProof.fromString<typeof NESTED_RECURSIVE_PROOF_LENGTH>(recursiveProofString);
     const verificationKey = VerificationKeyData.fromString(verificationKeyString);
 
     return makePublicInputsAndRecursiveProof(circuitOutput, recursiveProof, verificationKey);
@@ -674,7 +675,7 @@ class ActualProver implements ServerCircuitProver {
     };
 
     const circuitOutput = VMCircuitPublicInputs.fromString(circuitOutputString);
-    const recursiveProof = RecursiveProof.fromString<typeof RECURSIVE_PROOF_LENGTH>(recursiveProofString);
+    const recursiveProof = RecursiveProof.fromString<typeof NESTED_RECURSIVE_PROOF_LENGTH>(recursiveProofString);
     const verificationKey = VerificationKeyData.fromString(verificationKeyString);
 
     return makePublicInputsAndRecursiveProof(circuitOutput, recursiveProof, verificationKey);
@@ -702,7 +703,7 @@ class ActualProver implements ServerCircuitProver {
     };
 
     const circuitOutput = PublicKernelCircuitPublicInputs.fromString(circuitOutputString);
-    const recursiveProof = RecursiveProof.fromString<typeof RECURSIVE_PROOF_LENGTH>(recursiveProofString);
+    const recursiveProof = RecursiveProof.fromString<typeof NESTED_RECURSIVE_PROOF_LENGTH>(recursiveProofString);
     const verificationKey = VerificationKeyData.fromString(verificationKeyString);
 
     return makePublicInputsAndRecursiveProof(circuitOutput, recursiveProof, verificationKey);
@@ -730,7 +731,7 @@ class ActualProver implements ServerCircuitProver {
     };
 
     const circuitOutput = KernelCircuitPublicInputs.fromString(circuitOutputString);
-    const recursiveProof = RecursiveProof.fromString<typeof RECURSIVE_PROOF_LENGTH>(recursiveProofString);
+    const recursiveProof = RecursiveProof.fromString<typeof NESTED_RECURSIVE_PROOF_LENGTH>(recursiveProofString);
     const verificationKey = VerificationKeyData.fromString(verificationKeyString);
 
     return makePublicInputsAndRecursiveProof(circuitOutput, recursiveProof, verificationKey);
@@ -758,7 +759,7 @@ class ActualProver implements ServerCircuitProver {
     };
 
     const circuitOutput = KernelCircuitPublicInputs.fromString(circuitOutputString);
-    const recursiveProof = RecursiveProof.fromString<typeof RECURSIVE_PROOF_LENGTH>(recursiveProofString);
+    const recursiveProof = RecursiveProof.fromString<typeof NESTED_RECURSIVE_PROOF_LENGTH>(recursiveProofString);
     const verificationKey = VerificationKeyData.fromString(verificationKeyString);
 
     return makePublicInputsAndRecursiveProof(circuitOutput, recursiveProof, verificationKey);
@@ -786,7 +787,7 @@ class ActualProver implements ServerCircuitProver {
     };
 
     const circuitOutput = KernelCircuitPublicInputs.fromString(circuitOutputString);
-    const recursiveProof = RecursiveProof.fromString<typeof RECURSIVE_PROOF_LENGTH>(recursiveProofString);
+    const recursiveProof = RecursiveProof.fromString<typeof NESTED_RECURSIVE_PROOF_LENGTH>(recursiveProofString);
     const verificationKey = VerificationKeyData.fromString(verificationKeyString);
 
     return makePublicInputsAndRecursiveProof(circuitOutput, recursiveProof, verificationKey);

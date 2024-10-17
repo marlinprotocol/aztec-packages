@@ -84,7 +84,7 @@ export class KalypsoRemoteStatelessProver {
 
         logger.warn(`Trying to generate proof for ${method}`);
         if (method === 'TEST') {
-          res.json({ proof: new Uint8Array(Buffer.from('Proof not supported')) });
+          res.status(400).json({ proof: new Uint8Array(Buffer.from('Proof not supported')) });
         } else if (method === 'BASE_PARITY_PROOF') {
           const baseParityInputs = BaseParityInputs.fromString(inputs);
           const proof = await this.circuitProver!.getBaseParityProof(baseParityInputs);
