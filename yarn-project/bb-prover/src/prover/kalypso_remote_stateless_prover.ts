@@ -20,6 +20,7 @@ import { type TelemetryClient } from '@aztec/telemetry-client';
 import express, { type Request, type Response } from 'express';
 
 import { ProverInstrumentation } from '../instrumentation.js';
+import { ethers } from 'ethers';
 
 const logger = createDebugLogger('aztec:kalypso-remote-stateless-prover');
 
@@ -61,6 +62,22 @@ export class KalypsoRemoteStatelessProver {
     this.app.use(express.json({ limit: '10mb' }));
   }
 
+  // eslint-disable-next-line require-await, camelcase
+  private async getSignedInputAndProof(input_da_identifier: string, proof_da_identifier: string): Promise<Buffer> {
+    const abiCoder = new ethers.AbiCoder();
+    // eslint-disable-next-line camelcase
+    const input_da_buffer = Buffer.from(input_da_identifier);
+    // eslint-disable-next-line camelcase
+    const proof_da_buffer = Buffer.from(proof_da_identifier);
+
+    const signature = '0xabcdabcd'; //TODO:  fetch from ivs in upcoming version
+
+    // eslint-disable-next-line camelcase
+    const encoded = abiCoder.encode(['bytes', 'bytes', 'bytes'], [input_da_buffer, proof_da_buffer, signature]);
+
+    return Buffer.from(encoded.replace(/^0x/, ''), 'hex');
+  }
+
   private defineRoutes(): void {
     this.app.get('/api/welcome', (_: Request, res: Response) => {
       res.json({ message: 'Welcome!' });
@@ -68,7 +85,7 @@ export class KalypsoRemoteStatelessProver {
     });
 
     // TODO: dummy logic now
-    this.app.post('/api/checkInput',  (_: Request, res: Response) => {
+    this.app.post('/api/checkInput', (_: Request, res: Response) => {
       res.json({ valid: true });
       return;
     });
@@ -90,13 +107,17 @@ export class KalypsoRemoteStatelessProver {
           const proof = await this.circuitProver!.getBaseParityProof(baseParityInputs);
           // eslint-disable-next-line camelcase
           const proof_da_identifier = await this.storeDataInDa(proof.toString());
-          res.json({ proof: Array.from(new Uint8Array(Buffer.from(proof_da_identifier))) });
+          res.json({
+            proof: Array.from(new Uint8Array(await this.getSignedInputAndProof(idString, proof_da_identifier))),
+          });
         } else if (method === 'ROOT_PARITY_PROOF') {
           const rootParityInputs = RootParityInputs.fromString(inputs);
           const proof = await this.circuitProver!.getRootParityProof(rootParityInputs);
           // eslint-disable-next-line camelcase
           const proof_da_identifier = await this.storeDataInDa(proof?.toString());
-          res.json({ proof: Array.from(new Uint8Array(Buffer.from(proof_da_identifier))) });
+          res.json({
+            proof: Array.from(new Uint8Array(await this.getSignedInputAndProof(idString, proof_da_identifier))),
+          });
         } else if (method === 'BASE_ROLLUP_PROOF') {
           const baseRollupInputs = BaseRollupInputs.fromString(inputs);
           const baseRollupProof = await this.circuitProver!.getBaseRollupProof(baseRollupInputs);
@@ -104,30 +125,34 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: baseRollupProof!.inputs.toString(),
             recursiveProofString: baseRollupProof!.proof.toString(),
             verificationKeyString: baseRollupProof!.verificationKey.toString(),
-            customData : {
-              rawProof : baseRollupProof.proof.binaryProof.buffer.toString('hex'),
-              rawVerifiedKey : baseRollupProof.verificationKey.keyAsBytes.toString('hex')
-            }
+            customData: {
+              rawProof: baseRollupProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey: baseRollupProof.verificationKey.keyAsBytes.toString('hex'),
+            },
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
           const proof_da_identifier = await this.storeDataInDa(proofString);
-          res.json({ proof: Array.from(new Uint8Array(Buffer.from(proof_da_identifier))) });
+          res.json({
+            proof: Array.from(new Uint8Array(await this.getSignedInputAndProof(idString, proof_da_identifier))),
+          });
         } else if (method === 'TUBE_PROOF') {
           const tubeInputs = TubeInputs.fromString(inputs);
           const completeProof = await this.circuitProver!.getTubeProof(tubeInputs);
           const proof = {
             tubeVkString: completeProof!.tubeVK.toString(),
             recursiveProofString: completeProof!.tubeProof.toString(),
-            customData : {
-              rawProof : completeProof.tubeProof.binaryProof.buffer.toString('hex'),
-              rawVerifiedKey : completeProof.tubeVK.keyAsBytes.toString('hex'),
-            }
+            customData: {
+              rawProof: completeProof.tubeProof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey: completeProof.tubeVK.keyAsBytes.toString('hex'),
+            },
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
           const proof_da_identifier = await this.storeDataInDa(proofString);
-          res.json({ proof: Array.from(new Uint8Array(Buffer.from(proof_da_identifier))) });
+          res.json({
+            proof: Array.from(new Uint8Array(await this.getSignedInputAndProof(idString, proof_da_identifier))),
+          });
         } else if (method === 'MERGE_ROLLUP_PROOF') {
           const mergeRollupInputs = MergeRollupInputs.fromString(inputs);
           const mergeRollupProof = await this.circuitProver!.getMergeRollupProof(mergeRollupInputs);
@@ -135,15 +160,17 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: mergeRollupProof!.inputs.toString(),
             recursiveProofString: mergeRollupProof!.proof.toString(),
             verificationKeyString: mergeRollupProof!.verificationKey.toString(),
-            customData : {
-              rawProof : mergeRollupProof.proof.binaryProof.buffer.toString('hex'),
-              rawVerifiedKey : mergeRollupProof.verificationKey.keyAsBytes.toString('hex'),
-            }
+            customData: {
+              rawProof: mergeRollupProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey: mergeRollupProof.verificationKey.keyAsBytes.toString('hex'),
+            },
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
           const proof_da_identifier = await this.storeDataInDa(proofString);
-          res.json({ proof: Array.from(new Uint8Array(Buffer.from(proof_da_identifier))) });
+          res.json({
+            proof: Array.from(new Uint8Array(await this.getSignedInputAndProof(idString, proof_da_identifier))),
+          });
         } else if (method === 'BLOCK_ROOT_ROLLUP_PROOF') {
           const blockRootTollupInputs = BlockRootRollupInputs.fromString(inputs);
           const blockRootRollupProof = await this.circuitProver!.getBlockRootRollupProof(blockRootTollupInputs);
@@ -151,15 +178,17 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: blockRootRollupProof!.inputs.toString(),
             recursiveProofString: blockRootRollupProof!.proof.toString(),
             verificationKeyString: blockRootRollupProof!.verificationKey.toString(),
-            customData : {
-              rawProof : blockRootRollupProof.proof.binaryProof.buffer.toString('hex'),
-              rawVerifiedKey : blockRootRollupProof.verificationKey.keyAsBytes.toString('hex'),
-            }
+            customData: {
+              rawProof: blockRootRollupProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey: blockRootRollupProof.verificationKey.keyAsBytes.toString('hex'),
+            },
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
           const proof_da_identifier = await this.storeDataInDa(proofString);
-          res.json({ proof: Array.from(new Uint8Array(Buffer.from(proof_da_identifier))) });
+          res.json({
+            proof: Array.from(new Uint8Array(await this.getSignedInputAndProof(idString, proof_da_identifier))),
+          });
         } else if (method === 'BLOCK_ROOT_ROLLUP_FINAL_PROOF') {
           const blockRootRollupInputs = BlockRootRollupInputs.fromString(inputs);
           const blockRootRollupProof = await this.circuitProver!.getBlockRootRollupFinalProof(blockRootRollupInputs);
@@ -167,16 +196,18 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: blockRootRollupProof!.inputs.toString(),
             recursiveProofString: blockRootRollupProof!.proof.toString(),
             verificationKeyString: blockRootRollupProof!.verificationKey.toString(),
-            customData : {
-              rawProof : blockRootRollupProof.proof.binaryProof.buffer.toString('hex'),
-              rawVerifiedKey : blockRootRollupProof.verificationKey.keyAsBytes.toString('hex'),
-            }
+            customData: {
+              rawProof: blockRootRollupProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey: blockRootRollupProof.verificationKey.keyAsBytes.toString('hex'),
+            },
           };
 
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
           const proof_da_identifier = await this.storeDataInDa(proofString);
-          res.json({ proof: Array.from(new Uint8Array(Buffer.from(proof_da_identifier))) });
+          res.json({
+            proof: Array.from(new Uint8Array(await this.getSignedInputAndProof(idString, proof_da_identifier))),
+          });
         } else if (method === 'BLOCK_MERGE_ROLLUP_PROOF') {
           const blockMergeTollupInputs = BlockMergeRollupInputs.fromString(inputs);
           const blockMergeRollupProof = await this.circuitProver!.getBlockMergeRollupProof(blockMergeTollupInputs);
@@ -184,15 +215,17 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: blockMergeRollupProof!.inputs.toString(),
             recursiveProofString: blockMergeRollupProof!.proof.toString(),
             verificationKeyString: blockMergeRollupProof!.verificationKey.toString(),
-            customData : {
-              rawProof : blockMergeRollupProof.proof.binaryProof.buffer.toString('hex'),
-              rawVerifiedKey : blockMergeRollupProof.verificationKey.keyAsBytes.toString('hex'),
-            }
+            customData: {
+              rawProof: blockMergeRollupProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey: blockMergeRollupProof.verificationKey.keyAsBytes.toString('hex'),
+            },
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
           const proof_da_identifier = await this.storeDataInDa(proofString);
-          res.json({ proof: Array.from(new Uint8Array(Buffer.from(proof_da_identifier))) });
+          res.json({
+            proof: Array.from(new Uint8Array(await this.getSignedInputAndProof(idString, proof_da_identifier))),
+          });
         } else if (method === 'ROOT_ROLLUP_PROOF') {
           const rootRollupInputs = RootRollupInputs.fromString(inputs);
           const rootRollupProof = await this.circuitProver!.getRootRollupProof(rootRollupInputs);
@@ -200,15 +233,17 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: rootRollupProof!.inputs.toString(),
             recursiveProofString: rootRollupProof!.proof.toString(),
             verificationKeyString: rootRollupProof!.verificationKey.toString(),
-            customData : {
-              rawProof :rootRollupProof.proof.binaryProof.buffer.toString('hex'),
-              rawVerifiedKey : rootRollupProof.verificationKey.keyAsBytes.toString('hex'),
-            }
+            customData: {
+              rawProof: rootRollupProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey: rootRollupProof.verificationKey.keyAsBytes.toString('hex'),
+            },
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
           const proof_da_identifier = await this.storeDataInDa(proofString);
-          res.json({ proof: Array.from(new Uint8Array(Buffer.from(proof_da_identifier))) });
+          res.json({
+            proof: Array.from(new Uint8Array(await this.getSignedInputAndProof(idString, proof_da_identifier))),
+          });
         } else if (method === 'PUBLIC_KERNEL_INNER_PROOF') {
           const publicKernelInnerCircuitInputs = PublicKernelInnerCircuitPrivateInputs.fromString(inputs);
           const publicKernelInnerCircuitProof =
@@ -217,15 +252,17 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: publicKernelInnerCircuitProof!.inputs.toString(),
             recursiveProofString: publicKernelInnerCircuitProof!.proof.toString(),
             verificationKeyString: publicKernelInnerCircuitProof!.verificationKey.toString(),
-            customData : {
-              rawProof : publicKernelInnerCircuitProof.proof.binaryProof.buffer.toString('hex'),
-              rawVerifiedKey : publicKernelInnerCircuitProof.verificationKey.keyAsBytes.toString('hex'),
-            }
+            customData: {
+              rawProof: publicKernelInnerCircuitProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey: publicKernelInnerCircuitProof.verificationKey.keyAsBytes.toString('hex'),
+            },
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
           const proof_da_identifier = await this.storeDataInDa(proofString);
-          res.json({ proof: Array.from(new Uint8Array(Buffer.from(proof_da_identifier))) });
+          res.json({
+            proof: Array.from(new Uint8Array(await this.getSignedInputAndProof(idString, proof_da_identifier))),
+          });
         } else if (method === 'PUBLIC_KERNEL_MERGE_PROOF') {
           const publicKernelCircuitPrivateInputs = PublicKernelCircuitPrivateInputs.fromString(inputs);
           const publicKernelCircuitPrivateProof = await this.circuitProver!.getPublicKernelMergeProof(
@@ -236,15 +273,17 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: publicKernelCircuitPrivateProof!.inputs.toString(),
             recursiveProofString: publicKernelCircuitPrivateProof!.proof.toString(),
             verificationKeyString: publicKernelCircuitPrivateProof!.verificationKey.toString(),
-            customData : {
-              rawProof : publicKernelCircuitPrivateProof.proof.binaryProof.buffer.toString('hex'),
-              rawVerifiedKey : publicKernelCircuitPrivateProof.verificationKey.keyAsBytes.toString('hex'),
-            }
+            customData: {
+              rawProof: publicKernelCircuitPrivateProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey: publicKernelCircuitPrivateProof.verificationKey.keyAsBytes.toString('hex'),
+            },
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
           const proof_da_identifier = await this.storeDataInDa(proofString);
-          res.json({ proof: Array.from(new Uint8Array(Buffer.from(proof_da_identifier))) });
+          res.json({
+            proof: Array.from(new Uint8Array(await this.getSignedInputAndProof(idString, proof_da_identifier))),
+          });
         } else if (method === 'PUBLIC_TAIL_PROOF') {
           const publicTailInputs = PublicKernelTailCircuitPrivateInputs.fromString(inputs);
           const publicTailProof = await this.circuitProver!.getPublicTailProof(publicTailInputs);
@@ -252,15 +291,17 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: publicTailProof?.inputs.toString(),
             recursiveProofString: publicTailProof?.proof.toString(),
             verificationKeyString: publicTailProof?.verificationKey.toString(),
-            customData : {
-              rawProof : publicTailProof.proof.binaryProof.buffer.toString('hex'),
-              rawVerifiedKey : publicTailProof.verificationKey.keyAsBytes.toString('hex'),
-            }
+            customData: {
+              rawProof: publicTailProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey: publicTailProof.verificationKey.keyAsBytes.toString('hex'),
+            },
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
           const proof_da_identifier = await this.storeDataInDa(proofString);
-          res.json({ proof: Array.from(new Uint8Array(Buffer.from(proof_da_identifier))) });
+          res.json({
+            proof: Array.from(new Uint8Array(await this.getSignedInputAndProof(idString, proof_da_identifier))),
+          });
         } else if (method === 'EMPTY_PRIVATE_KERNEL_PROOF') {
           const privateKernelEmptyInputData = PrivateKernelEmptyInputData.fromString(inputs);
           const privateKernelEmptyInputProof =
@@ -269,15 +310,17 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: privateKernelEmptyInputProof?.inputs.toString(),
             recursiveProofString: privateKernelEmptyInputProof?.proof.toString(),
             verificationKeyString: privateKernelEmptyInputProof?.verificationKey.toString(),
-            customData : {
-              rawProof : privateKernelEmptyInputProof.proof.binaryProof.buffer.toString('hex'),
-              rawVerifiedKey : privateKernelEmptyInputProof.verificationKey.keyAsBytes.toString('hex')
-            }
+            customData: {
+              rawProof: privateKernelEmptyInputProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey: privateKernelEmptyInputProof.verificationKey.keyAsBytes.toString('hex'),
+            },
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
           const proof_da_identifier = await this.storeDataInDa(proofString);
-          res.json({ proof: Array.from(new Uint8Array(Buffer.from(proof_da_identifier))) });
+          res.json({
+            proof: Array.from(new Uint8Array(await this.getSignedInputAndProof(idString, proof_da_identifier))),
+          });
         } else if (method === 'EMPTY_TUBE_PROOF') {
           const privateKernelEmptyInputData = PrivateKernelEmptyInputData.fromString(inputs);
           const privateKernelEmptyInputProof = await this.circuitProver!.getEmptyTubeProof(privateKernelEmptyInputData);
@@ -286,15 +329,17 @@ export class KalypsoRemoteStatelessProver {
             circuitOutputString: privateKernelEmptyInputProof?.inputs.toString(),
             recursiveProofString: privateKernelEmptyInputProof?.proof.toString(),
             verificationKeyString: privateKernelEmptyInputProof?.verificationKey.toString(),
-            customData : {
-              rawProof : privateKernelEmptyInputProof.proof.binaryProof.buffer.toString('hex'),
-              rawVerifiedKey : privateKernelEmptyInputProof.verificationKey.keyAsBytes.toString('hex'),
-            }
+            customData: {
+              rawProof: privateKernelEmptyInputProof.proof.binaryProof.buffer.toString('hex'),
+              rawVerifiedKey: privateKernelEmptyInputProof.verificationKey.keyAsBytes.toString('hex'),
+            },
           };
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
           const proof_da_identifier = await this.storeDataInDa(proofString);
-          res.json({ proof: Array.from(new Uint8Array(Buffer.from(proof_da_identifier))) });
+          res.json({
+            proof: Array.from(new Uint8Array(await this.getSignedInputAndProof(idString, proof_da_identifier))),
+          });
         } else if (method === 'AVM_PROOF') {
           const avmInputs = AvmCircuitInputs.fromString(inputs);
           const avmProof = await this.circuitProver!.getAvmProof(avmInputs);
@@ -302,16 +347,18 @@ export class KalypsoRemoteStatelessProver {
           const proof = {
             recursiveProofString: avmProof.proof.toString(),
             verificationKeyString: avmProof.verificationKey.toString(),
-            customData : {
-              rawProof : avmProof.proof.buffer.toString('hex'),
-              rawVerifiedKey : avmProof.verificationKey.keyAsBytes.toString('hex'),
-            }
+            customData: {
+              rawProof: avmProof.proof.buffer.toString('hex'),
+              rawVerifiedKey: avmProof.verificationKey.keyAsBytes.toString('hex'),
+            },
           };
 
           const proofString = JSON.stringify(proof);
           // eslint-disable-next-line camelcase
           const proof_da_identifier = await this.storeDataInDa(proofString);
-          res.json({ proof: Array.from(new Uint8Array(Buffer.from(proof_da_identifier))) });
+          res.json({
+            proof: Array.from(new Uint8Array(await this.getSignedInputAndProof(idString, proof_da_identifier))),
+          });
         } else {
           res.status(404).json({ proof: new Uint8Array(Buffer.from('Proof not supported')) });
         }
