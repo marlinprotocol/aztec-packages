@@ -70,12 +70,55 @@ export class KalypsoRemoteStatelessProver {
     // eslint-disable-next-line camelcase
     const proof_da_buffer = Buffer.from(proof_da_identifier);
 
-    const signature = '0xabcdabcd'; //TODO:  fetch from ivs in upcoming version
-
+    const signature = await this.fetchSignatureForInputAndProof(input_da_buffer, proof_da_buffer);
     // eslint-disable-next-line camelcase
     const encoded = abiCoder.encode(['bytes', 'bytes', 'bytes'], [input_da_buffer, proof_da_buffer, signature]);
 
     return Buffer.from(encoded.replace(/^0x/, ''), 'hex');
+  }
+
+  // eslint-disable-next-line camelcase
+  private async fetchSignatureForInputAndProof(input_da_buffer: Buffer, proof_da_buffer: Buffer): Promise<Buffer> {
+    // pub struct SignInputsAndProofForNonConfidentialInput {
+    //   pub public_input: Vec<u8>,
+    //   pub proof: Vec<u8>,
+    // }
+
+    const payload = {
+      // eslint-disable-next-line camelcase
+      public_input: new Uint8Array(input_da_buffer),
+      proof: new Uint8Array(proof_da_buffer),
+    };
+
+    const ivsSigningUrl = 'http://13.235.15.234:3000/api/signInputsAndProofForNonConfidentialInputs';
+    try {
+      const response = await fetch(ivsSigningUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        logger.error('fetchSignatureForInputAndProof: ' + response.status);
+        throw new Error(`HTTP error! Status: ${response.status}\nBody: ${response.body}`);
+      }
+
+      // pub struct GenerateProofResponse {
+      //     pub proof: Vec<u8>,
+      // }
+      const responseData: { proof: Uint8Array } = await response.json();
+      return Buffer.from(responseData.proof);
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error('Error posting info to ivs signing end point: ', error.message);
+      } else {
+        logger.error('Error posting info to ivs signing end point: ', error);
+      }
+
+      return Buffer.from('0xabcdabcd', 'hex'); //TODO:  throw error in future versions, now returning dummy proofs
+    }
   }
 
   private defineRoutes(): void {
@@ -392,9 +435,9 @@ export class KalypsoRemoteStatelessProver {
         }
       } catch (error) {
         if (error instanceof Error) {
-          logger.error('Error querying proof info from Kalypso server: ', error.message);
+          logger.error('Error querying proof info from ivs signing end point: ', error.message);
         } else {
-          logger.error('Error querying proof info from Kalypso server: ', error);
+          logger.error('Error querying proof info from ivs signing end point: ', error);
         }
         res.status(500).json({ proof: new Uint8Array(Buffer.from('Some error')) });
       }
