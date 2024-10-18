@@ -927,7 +927,7 @@ export class BBNativeRollupProver implements ServerCircuitProver {
    * @param circuitType - The type of circuit for which the verification key is required
    * @returns The verification key data
    */
-  private async getVerificationKeyDataForCircuit(circuitType: ServerProtocolArtifact): Promise<VerificationKeyData> {
+  public async getVerificationKeyDataForCircuit(circuitType: ServerProtocolArtifact): Promise<VerificationKeyData> {
     const flavor = getUltraHonkFlavorForCircuit(circuitType);
     let promise = this.verificationKeys.get(`${flavor}_${circuitType}`);
     if (!promise) {

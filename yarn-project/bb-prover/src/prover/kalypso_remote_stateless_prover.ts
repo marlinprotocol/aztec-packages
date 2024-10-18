@@ -104,17 +104,45 @@ export class KalypsoRemoteStatelessProver {
           res.status(400).json({ proof: new Uint8Array(Buffer.from('Proof not supported')) });
         } else if (method === 'BASE_PARITY_PROOF') {
           const baseParityInputs = BaseParityInputs.fromString(inputs);
-          const proof = await this.circuitProver!.getBaseParityProof(baseParityInputs);
+          const baseParityProof = await this.circuitProver!.getBaseParityProof(baseParityInputs);
+          const verificationKey = await this.circuitProver!.getVerificationKeyDataForCircuit('BaseParityArtifact');
+          const rawProof = baseParityProof.proof.binaryProof.buffer.toString('hex');
+
+          const customData = {
+            rawProof,
+            rawVerifiedKey: verificationKey.keyAsBytes.toString('hex'),
+          };
+
+          const proof = {
+            proof: baseParityProof.toString(),
+            customData,
+          };
+          const proofString = JSON.stringify(proof);
+
           // eslint-disable-next-line camelcase
-          const proof_da_identifier = await this.storeDataInDa(proof.toString());
+          const proof_da_identifier = await this.storeDataInDa(proofString);
           res.json({
             proof: Array.from(new Uint8Array(await this.getSignedInputAndProof(idString, proof_da_identifier))),
           });
         } else if (method === 'ROOT_PARITY_PROOF') {
           const rootParityInputs = RootParityInputs.fromString(inputs);
-          const proof = await this.circuitProver!.getRootParityProof(rootParityInputs);
+          const rootParityProof = await this.circuitProver!.getRootParityProof(rootParityInputs);
+          const verificationKey = await this.circuitProver!.getVerificationKeyDataForCircuit('RootParityArtifact');
+          const rawProof = rootParityProof.proof.binaryProof.buffer.toString('hex');
+
+          const customData = {
+            rawProof,
+            rawVerifiedKey: verificationKey.keyAsBytes.toString('hex'),
+          };
+
+          const proof = {
+            proof: rootParityProof.toString(),
+            customData,
+          };
+          const proofString = JSON.stringify(proof);
+
           // eslint-disable-next-line camelcase
-          const proof_da_identifier = await this.storeDataInDa(proof?.toString());
+          const proof_da_identifier = await this.storeDataInDa(proofString);
           res.json({
             proof: Array.from(new Uint8Array(await this.getSignedInputAndProof(idString, proof_da_identifier))),
           });

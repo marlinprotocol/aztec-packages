@@ -46,7 +46,7 @@ interface KalypsoRequest {
 }
 
 interface ProofId {
-  complete: boolean
+  complete: boolean;
   proof_da_identifier: string;
 }
 
@@ -348,10 +348,10 @@ class ActualProver implements ServerCircuitProver {
       try {
         // Attempt to execute the function
         const result = await fn();
-        if (result.complete && result.proof_da_identifier){
-          return result
-        }else{
-          throw new Error("Proof not complete yet")
+        if (result.complete && result.proof_da_identifier) {
+          return result;
+        } else {
+          throw new Error('Proof not complete yet');
         }
       } catch (error) {
         lastError = error;
@@ -438,7 +438,9 @@ class ActualProver implements ServerCircuitProver {
 
     // eslint-disable-next-line camelcase
     const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 12345, 5000);
-    const proof = await this.fetchDataFromDa(proof_da_identifier);
+    const proofString = await this.fetchDataFromDa(proof_da_identifier);
+    const { proof } = JSON.parse(proofString) as { proof: string };
+
     const toReturn = RootParityInput.fromString<typeof RECURSIVE_PROOF_LENGTH>(proof);
     return toReturn;
   }
@@ -456,7 +458,9 @@ class ActualProver implements ServerCircuitProver {
 
     // eslint-disable-next-line camelcase
     const { proof_da_identifier } = await this.retry(() => this.queryProofFromKalypso(kalypsoRequest), 12345, 5000);
-    const proof = await this.fetchDataFromDa(proof_da_identifier);
+    const proofString = await this.fetchDataFromDa(proof_da_identifier);
+    const { proof } = JSON.parse(proofString) as { proof: string };
+
     const toReturn = RootParityInput.fromString<typeof NESTED_RECURSIVE_PROOF_LENGTH>(proof);
     return toReturn;
   }
