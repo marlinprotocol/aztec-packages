@@ -110,6 +110,7 @@ export class KalypsoRemoteStatelessProver {
       //     pub proof: Vec<u8>,
       // }
       const responseData: { proof: Uint8Array } = await response.json();
+      logger.info('Fetched signature from IVS');
       return Buffer.from(responseData.proof);
     } catch (error) {
       if (error instanceof Error) {
