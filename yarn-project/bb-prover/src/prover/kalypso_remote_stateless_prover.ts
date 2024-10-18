@@ -90,7 +90,8 @@ export class KalypsoRemoteStatelessProver {
       proof: new Uint8Array(proof_da_buffer),
     };
 
-    const ivsSigningUrl = 'http://13.235.15.234:3000/api/signInputsAndProofForNonConfidentialInputs';
+    const ivsSigningUrl = 'http://172.31.36.160:3000/api/signInputsAndProofForNonConfidentialInputs';
+
     try {
       const response = await fetch(ivsSigningUrl, {
         method: 'POST',
