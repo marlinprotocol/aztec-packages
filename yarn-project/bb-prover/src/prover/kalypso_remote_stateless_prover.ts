@@ -86,8 +86,8 @@ export class KalypsoRemoteStatelessProver {
 
     const payload = {
       // eslint-disable-next-line camelcase
-      public_input: new Uint8Array(input_da_buffer),
-      proof: new Uint8Array(proof_da_buffer),
+      public_input: Array.from(new Uint8Array(input_da_buffer)),
+      proof: Array.from(new Uint8Array(proof_da_buffer)),
     };
 
     const ivsSigningUrl = 'http://13.235.50.234:3030/api/signInputsAndProofForNonConfidentialInputs';
